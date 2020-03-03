@@ -1,0 +1,8 @@
+Matthew Groover
+lab4 
+
+I have the requirments for delcaration of a variable the instantiation 
+of the variable. The limitation of how many can be declared. The 
+limitation of no duplicate variables. The limitation that a undeclared 
+variable does not work. And that the variable can be used on the left 
+and right hand side.
