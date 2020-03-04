@@ -49,48 +49,74 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NUM = 258,
-    INT = 259,
-    ID = 260,
-    MYBEGIN = 261,
-    DO = 262,
-    MYRETURN = 263,
+    ID = 258,
+    NUM = 259,
+    INT = 260,
+    VOID = 261,
+    BOOLEAN = 262,
+    MYBEGIN = 263,
     END = 264,
     IF = 265,
     THEN = 266,
-    WHILE = 267,
-    READ = 268,
-    ELSE = 269,
-    UMINUS = 270
+    ELSE = 267,
+    WHILE = 268,
+    DO = 269,
+    MYRETURN = 270,
+    READ = 271,
+    WRITE = 272,
+    LE = 273,
+    LT = 274,
+    GE = 275,
+    GT = 276,
+    EE = 277,
+    NE = 278,
+    AND = 279,
+    OR = 280,
+    TRUE = 281,
+    FALSE = 282,
+    NOT = 283
   };
 #endif
 /* Tokens.  */
-#define NUM 258
-#define INT 259
-#define ID 260
-#define MYBEGIN 261
-#define DO 262
-#define MYRETURN 263
+#define ID 258
+#define NUM 259
+#define INT 260
+#define VOID 261
+#define BOOLEAN 262
+#define MYBEGIN 263
 #define END 264
 #define IF 265
 #define THEN 266
-#define WHILE 267
-#define READ 268
-#define ELSE 269
-#define UMINUS 270
+#define ELSE 267
+#define WHILE 268
+#define DO 269
+#define MYRETURN 270
+#define READ 271
+#define WRITE 272
+#define LE 273
+#define LT 274
+#define GE 275
+#define GT 276
+#define EE 277
+#define NE 278
+#define AND 279
+#define OR 280
+#define TRUE 281
+#define FALSE 282
+#define NOT 283
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 73 "lab5.y"
+#line 31 "lab5.y"
 
 
 int number;
 char *string;
 
 
-#line 94 "y.tab.h"
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

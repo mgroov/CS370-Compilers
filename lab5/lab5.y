@@ -1,68 +1,26 @@
 %{
 
-/*
- *			**** CALC ****
- *
- * This routine will function like a desk calculator
- * There are 26 NUM registers, named 'a' thru 'z'
- *
- */
-
-/* This calculator depends on a LEX description which outputs either ID or NUM.
-   The return type via yylval is NUM 
-
-   When we need to make yylval more complicated, we need to define a pointer type for yylval 
-   and to instruct YACC to use a new type so that we can pass back better values
- 
-   The registers are based on 0, so we substract 'a' from each single letter we get.
-
-   based on context, we have YACC do the correct memmory look up or the storage depending
-   on position
-
-   Shaun Cooper
-    January 2015
-
-   problems  fix unary minus, fix parenthesis, add multiplication
-   problems  make it so that verbose is on and off with an input argument instead of compiled in
-
-	 modified by Matthew Groover 
-	 2-3-2020
-	added the multiplication 
-	fixed the unary minus function 
-	inputs are the expression expected to be input by the user
-	output is a parsed out expression and accurate end status of 
-	the calculation. 
-	
-	modified by mg 
-	2-14-20
-	added program decls and dec declarations
-	changes starting label from list to program
-	
-	
-	modified by mg 
-	2-21-20 - 2-23-20
-	added handle for ID insert,declaration,manipulation
-	on both the left and right hand side of the equation 
-	added rules to call to modified symtab structure.
-	added a union handler to specify type of ID being passed through.
-	
+/*  Matthew Groover 
+    3-2-20 - 3-4-20
+ *  this y file defines the algol-c language for 
+    our ast and later use for the whole compiler [21~
 */
 
 
 	/* begin specs */
 #include <stdio.h>
 #include <ctype.h>
-#include <stdlib.h>
-#define max_size 2
-int regs[max_size];
-int base, debugsw;
-int offset;
+
+
+  external int linecount;
+  
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
 {
-  printf ("%s\n", s);
+  printf ("%s on line %d \n", s,linecount);
 }
 
+ 
 
 int yylex();
 /*  defines the start symbol, what values come back from LEX and how the operators are associated  */
@@ -77,71 +35,144 @@ char *string;
 
 }
 
+%token <string> ID
 %token <number> NUM
 %token INT
-%token <string>ID
-%type <number> expr
+%token VOID
+%token BOOLEAN
 %token MYBEGIN
-%token DO
-%token MYRETURN
 %token END
 %token IF
 %token THEN
-%token WHILE
-%token READ
 %token ELSE
+%token WHILE
+%token DO
+%token MYRETURN
+%token READ
+%token WRITE
+%token LE
+%token LT
+%token GE
+%token GT
+%token EE
+%token NE
+%token AND
+%token OR
+%token TRUE
+%token FALSE
+%token NOT
 
-%left '|'
-%left '&'
-%left '+' '-'
-%left '*' '/' '%'
-%left UMINUS
+%%/*end of specs start of rules */
 
-%%	/* end specs, begin rules */
-program:DECLS list
+program: decl
+;
+decl:dec
+    |dec decl
+    ;
+dec:vardec
+   |fundec
+   ;
+vardec:typespec varlist';'
+      ;
+varlist:ID
+       |ID '['NUM']' {fprintf(stderr,"there is a num it is %d \n",$3);}
+       |ID ',' varlist 
+       |ID '['NUM']'','varlist {fprintf(stderr,"there is a num it is %d \n",$3);}
        ;
-DECLS  :DEC DECLS
-       |/*empty*/
+typespec:INT
+        |VOID
+        |BOOLEAN
+        ;
+fundec:typespec ID '('params')' compstat
+      ;
+params:VOID
+      |paramlist
+      ;
+paramlist:param
+         |param ',' paramlist
+         ;
+param:typespec ID
+     |typespec ID '['']'
+     ;
+compstat:MYBEGIN localdec statlist END
+        ;
+localdec:/*empty*/
+        |vardec
+	;
+statlist:/*empty*/
+        |statement
+	;
+statement:expressstat
+        |compstat
+        |selectionstat
+        |iterstat
+        |assignstat
+        |returstat
+        |readstat
+        |writestat
+        ;
+expressstat:expression';'
+            |';'
+            ;
+selectionstat:IF expression THEN statement
+             |IF expression THEN ELSE statement
+             ;
+iterstat:WHILE expression DO statement 
+        ;
+returstat:MYRETURN ';'
+         |MYRETURN expression ';'
+         ;
+readstat:READ var ';'
+        ;
+writestat:WRITE expression ';'
+         ;
+assignstat: var '=' simpleexp ';'
+          ;
+expression:simpleexp
+          ;
+var:ID
+   |ID '['expression']'
+   ;
+simpleexp:addexp
+         |addexp relop 
+         ;
+relop:LE
+     |LT
+     |GT
+     |GE
+     |EE
+     |NE
+     ;
+addexp:term
+      |addop term
+      ;
+addop:'+'
+     |'-'
+     ;
+term:factor
+    |mulop factor
+    ;
+mulop:'*'
+     |'/'
+     |AND
+     |OR
+     ;
+factor:'('expression')'
+      |NUM  {fprintf(stderr,"there is a num it is %d \n",$1);}
+      |var
+      |call
+      |TRUE
+      |FALSE
+      |NOT factor
+      ;
+call:ID '('args')'
+    ;
+args:arglist
+    |/*empty*/ 
+    ;
+arglist:expression
+       |expression ',' arglist
        ;
-DEC    :INT ID ';' '\n' {if(Search($2)){fprintf(stderr,"ID already declared\n");exit(1);}else{if(offset<max_size){Insert($2,offset++);} else {fprintf(stderr,"too many ID declarations\n"); exit(1);} }}
-       ;
-list	:	/* empty */
-	|	list stat '\n'
-	|	list error '\n'
-		{ yyerrok; }
-	;
-
-stat	:	expr
-			{ fprintf(stderr,"the anwser is %d\n", $1); }
-	|	ID '=' expr
-			{ if(Search($1)){regs[fetch_adress($1)]=$3;fprintf(stderr,"the ID %s\n is now %d\n\n",$1,$3);}else{fprintf(stderr,"the ID %s doesn't exists \n", $1); exit(1); } }
-	;
-
-expr	:	 '(' expr ')' /*not many modification made in .y file */
-			{$$ = $2  ; }
-	|	expr '-' expr
-			{ $$ = $1 - $3; }
-	|	expr '+' expr
-			{ $$ = $1 + $3; }
-	|	expr '/' expr
-			{ $$ = $1 / $3; }
-	|	expr '%' expr
-			{ $$ = $1 % $3; }
-	|	expr '&' expr
-			{ $$ = $1 & $3; }
-	|	expr '|' expr
-			{ $$ = $1 | $3; }
-	|	expr '*' expr /* added multiplication function */
-			{ $$ = $1 * $3; } 
-	|	 '-' expr	%prec UMINUS 
-			{ $$ = -$2; } /* modified to handle correctly */
-	|	ID
-	{ if(Search($1)){$$=regs[fetch_adress($1)];}else{fprintf(stderr,"ID does not exist \n"); exit(1);} } 
-	|	NUM {$$=$1; fprintf(stderr,"found an NUM\n");}
-	;
-
-
-
 %%	/* end of rules, start of program */
 
 int main()
