@@ -12,7 +12,7 @@
 #include <ctype.h>
 
  
-extern int linecount;
+  extern int linecount;  /*imports the linecount from lex */
   
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -41,7 +41,7 @@ char *string;
 %token VOID
 %token BOOLEAN
 %token MYBEGIN
-%token END
+%token END             /*these are all the tokens lex passes to the yacc file */
 %token IF
 %token THEN
 %token ELSE
@@ -72,7 +72,7 @@ decl:dec
 dec:vardec
    |fundec
    ;
-vardec:typespec varlist';'
+vardec:typespec varlist';'                         /*vardec , varlist handle all variable declaration */
       ;
 varlist:ID
        |ID '['NUM']' {fprintf(stderr,"there is a num it is %d \n",$3);}
@@ -83,7 +83,7 @@ typespec:INT
         |VOID
         |BOOLEAN
         ;
-fundec:typespec ID '('params')' compstat
+fundec:typespec ID '('params')' compstat       /*handles function declaration with or without parameters */
       ;
 params:VOID
       |paramlist
@@ -92,15 +92,15 @@ paramlist:param
          |param ',' paramlist
          ;
 param:typespec ID
-     |typespec ID '['']'
+|typespec ID '['']'                    /*param list , param handle a large ammount and what type of params work in the function declarations */
      ;
-compstat:MYBEGIN localdec statlist END
+compstat:MYBEGIN localdec statlist END  /*states how functions should be implemented */
         ;
 localdec:/*empty*/
-        |vardec
+        |localdec vardec
 	;
 statlist:/*empty*/
-        |statement 
+        |statlist statement 
 	;
 statement:expressstat
          |compstat
@@ -119,14 +119,14 @@ selectionstat:IF expression THEN statement
              ;
 iterstat:WHILE expression DO statement 
         ;
-returstat:MYRETURN ';'
+returstat:MYRETURN ';'                                       /* all simple expression are right recursive in order to handle math properly */
          |MYRETURN expression ';'
          ;
 readstat:READ var ';'
         ;
-writestat:WRITE expression ';'
+writestat:WRITE expression ';'               
          ;
-assignstat: var '=' simpleexp ';'
+assignstat: var '=' simpleexp ';'          
           ;
 expression:simpleexp
           ;
@@ -138,7 +138,7 @@ simpleexp:addexp
          ;
 relop:LE
      |LT
-     |GT
+     |GT        /* handles relation ship operators such as <= */
      |GE
      |EE
      |NE
@@ -158,7 +158,7 @@ mulop:'*'
      |OR
      ;
 factor:'('expression')'
-      |NUM  {fprintf(stderr,"there is a num it is %d \n",$1);}
+      |NUM  {fprintf(stderr,"there is a num it is %d \n",$1);}  /* this detetmines how the expression statment works  */
       |var
       |call
       |TRUE

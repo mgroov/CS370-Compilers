@@ -518,19 +518,22 @@ char yytext[YYLMAX];
 char *yytext_ptr;
 #line 1 "lab5.l"
 #line 2 "lab5.l"
-//Matthew Groover lab5
-//passes tokens based on language passed to it till eof
+/* lab5
+Matthew Groover
+3-2-20
+this handles passing tokens and values to yacc as it sees them
+everytime a new line occurs the linecount variable is incremented
+*/
 
 
-
-int mydebug =1;
+int mydebug =0;
 int linecount =1;
 
 #include "y.tab.h"
 
 int yylex();
-#line 532 "lex.yy.c"
-#line 533 "lex.yy.c"
+#line 535 "lex.yy.c"
+#line 536 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -747,10 +750,10 @@ YY_DECL
 		}
 
 	{
-#line 22 "lab5.l"
+#line 25 "lab5.l"
 
 
-#line 753 "lex.yy.c"
+#line 756 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -819,160 +822,160 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 24 "lab5.l"
+#line 27 "lab5.l"
 {return(INT);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 25 "lab5.l"
+#line 28 "lab5.l"
 {return(VOID);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 26 "lab5.l"
+#line 29 "lab5.l"
 {return(BOOLEAN);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 27 "lab5.l"
+#line 30 "lab5.l"
 {return(MYBEGIN);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 28 "lab5.l"
-{return(END);}
+#line 31 "lab5.l"
+{return(END);}           /*this handles all the reserved word tokens for the yacc */
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 29 "lab5.l"
+#line 32 "lab5.l"
 {return(IF);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 30 "lab5.l"
+#line 33 "lab5.l"
 {return(THEN);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 31 "lab5.l"
+#line 34 "lab5.l"
 {return(ELSE);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 32 "lab5.l"
+#line 35 "lab5.l"
 {return(WHILE);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 33 "lab5.l"
+#line 36 "lab5.l"
 {return(DO);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 34 "lab5.l"
+#line 37 "lab5.l"
 {return(MYRETURN);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 35 "lab5.l"
+#line 38 "lab5.l"
 {return(READ);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 36 "lab5.l"
-{return(WRITE);}
+#line 39 "lab5.l"
+{return(WRITE);}       
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 37 "lab5.l"
+#line 40 "lab5.l"
 {return(AND);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 38 "lab5.l"
+#line 41 "lab5.l"
 {return(OR);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 39 "lab5.l"
+#line 42 "lab5.l"
 {return(TRUE);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 40 "lab5.l"
+#line 43 "lab5.l"
 {return(FALSE);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 41 "lab5.l"
+#line 44 "lab5.l"
 {return(NOT);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 43 "lab5.l"
-{return(LE);fprintf(stderr,"found a relop\n");}
+#line 45 "lab5.l"
+{return(LE);}    /* relationship opps opperate diffrently because they aren't read in as one */
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 44 "lab5.l"
+#line 46 "lab5.l"
 {return(LT);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 45 "lab5.l"
+#line 47 "lab5.l"
 {return(GE);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 46 "lab5.l"
+#line 48 "lab5.l"
 {return(GT);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 47 "lab5.l"
+#line 49 "lab5.l"
 {return(EE);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 48 "lab5.l"
+#line 50 "lab5.l"
 {return(NE);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 50 "lab5.l"
-{if (mydebug) fprintf(stderr,"Letter found\n");
+#line 52 "lab5.l"
+{if (mydebug) fprintf(stderr,"Letter found\n");        /* this handles the id passing */
                        yylval.string =strdup(yytext); return(ID);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 52 "lab5.l"
+#line 54 "lab5.l"
 {if (mydebug) fprintf(stderr,"Digit found\n");
-                       yylval.number=atoi((const char *)yytext); return(NUM);}
+                       yylval.number=atoi((const char *)yytext); return(NUM);}      /*this handles numerical passing */
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 54 "lab5.l"
+#line 56 "lab5.l"
 {if (mydebug) fprintf(stderr,"Whitespace found\n");}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 55 "lab5.l"
-{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext);
+#line 57 "lab5.l"
+{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext);  /*this handles all small token handles */
                        return (*yytext);}
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 57 "lab5.l"
-{ if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext);
+#line 59 "lab5.l"
+{ if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext);         /*this handles the linecount */
                        linecount++;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 59 "lab5.l"
+#line 61 "lab5.l"
 ECHO;
 	YY_BREAK
-#line 975 "lex.yy.c"
+#line 978 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1989,7 +1992,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 59 "lab5.l"
+#line 61 "lab5.l"
 
 
 
