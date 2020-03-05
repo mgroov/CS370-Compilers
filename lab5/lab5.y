@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-
-  external int linecount;
+ 
+extern int linecount;
   
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -134,7 +134,7 @@ var:ID
    |ID '['expression']'
    ;
 simpleexp:addexp
-         |addexp relop 
+         |addexp relop  
          ;
 relop:LE
      |LT
