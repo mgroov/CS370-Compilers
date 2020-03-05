@@ -97,10 +97,10 @@ param:typespec ID
 compstat:MYBEGIN localdec statlist END  /*states how functions should be implemented */
         ;
 localdec:/*empty*/
-        |localdec vardec
+        |vardec localdec
 	;
 statlist:/*empty*/
-        |statlist statement 
+        |statement statlist 
 	;
 statement:expressstat
          |compstat
