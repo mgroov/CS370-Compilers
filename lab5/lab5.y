@@ -167,8 +167,8 @@ factor:'('expression')'
       ;
 call:ID '('args')'
     ;
-args:arglist
-    |/*empty*/ 
+args:/*empty*/
+    |arglist 
     ;
 arglist:expression
        |expression ',' arglist 

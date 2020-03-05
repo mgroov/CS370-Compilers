@@ -1,2 +1,2 @@
 int x;
-while x < 5 do x =1
+if x == 1 then x=5;

@@ -4,7 +4,7 @@
 
 
 
-int mydebug =0;
+int mydebug =1;
 int linecount =1;
 
 #include "y.tab.h"
@@ -34,17 +34,18 @@ do        {return(DO);}
 return    {return(MYRETURN);}
 read      {return(READ);}
 write     {return(WRITE);}
-"<="      {return(LE);}
-"<"       {return(LT);}
-">="      {return(GE);}
-">"       {return(GT);}
-"=="      {return(EE);}
-"!="      {return(NE);}
 and       {return(AND);}
 or        {return(OR);}
 true      {return(TRUE);}
 false     {return(FALSE);}
 not       {return(NOT);}
+
+"<="      {return(LE);fprintf(stderr,"found a relop\n");}
+"<"       {return(LT);}
+">="      {return(GE);}
+">"      {return(GT);}
+"=="      {return(EE);}
+"!="      {return(NE);}
 
 [a-zA-Z][a-zA-Z0-9]* {if (mydebug) fprintf(stderr,"Letter found\n");
                        yylval.string =strdup(yytext); return(ID);}

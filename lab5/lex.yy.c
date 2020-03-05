@@ -381,14 +381,14 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[85] =
     {   0,
-        0,    0,   31,   30,   27,   29,   30,   28,   26,   15,
-       28,   17,   25,   25,   25,   25,   25,   25,   25,   25,
-       25,   25,   25,   25,   25,   19,   26,   14,   18,   16,
+        0,    0,   31,   30,   27,   29,   30,   28,   26,   20,
+       28,   22,   25,   25,   25,   25,   25,   25,   25,   25,
+       25,   25,   25,   25,   25,   24,   26,   19,   23,   21,
        25,   25,   25,   25,   10,   25,   25,   25,    6,   25,
-       25,   21,   25,   25,   25,   25,   25,   25,   20,   25,
-       25,   25,    5,   25,    1,   24,   25,   25,   25,   25,
+       25,   15,   25,   25,   25,   25,   25,   25,   14,   25,
+       25,   25,    5,   25,    1,   18,   25,   25,   25,   25,
        25,   25,   25,   25,   25,    8,   25,   12,   25,    7,
-       22,    2,   25,   25,    4,   25,   23,   25,    9,   13,
+       16,    2,   25,   25,    4,   25,   17,   25,    9,   13,
        25,   11,    3,    0
     } ;
 
@@ -523,7 +523,7 @@ char *yytext_ptr;
 
 
 
-int mydebug =0;
+int mydebug =1;
 int linecount =1;
 
 #include "y.tab.h"
@@ -885,91 +885,91 @@ YY_RULE_SETUP
 case 14:
 YY_RULE_SETUP
 #line 37 "lab5.l"
-{return(LE);}
+{return(AND);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 38 "lab5.l"
-{return(LT);}
+{return(OR);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 39 "lab5.l"
-{return(GE);}
+{return(TRUE);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 40 "lab5.l"
-{return(GT);}
+{return(FALSE);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 41 "lab5.l"
-{return(EE);}
+{return(NOT);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 42 "lab5.l"
-{return(NE);}
+#line 43 "lab5.l"
+{return(LE);fprintf(stderr,"found a relop\n");}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 43 "lab5.l"
-{return(AND);}
+#line 44 "lab5.l"
+{return(LT);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 44 "lab5.l"
-{return(OR);}
+#line 45 "lab5.l"
+{return(GE);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 45 "lab5.l"
-{return(TRUE);}
+#line 46 "lab5.l"
+{return(GT);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 46 "lab5.l"
-{return(FALSE);}
+#line 47 "lab5.l"
+{return(EE);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 47 "lab5.l"
-{return(NOT);}
+#line 48 "lab5.l"
+{return(NE);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 49 "lab5.l"
+#line 50 "lab5.l"
 {if (mydebug) fprintf(stderr,"Letter found\n");
                        yylval.string =strdup(yytext); return(ID);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 51 "lab5.l"
+#line 52 "lab5.l"
 {if (mydebug) fprintf(stderr,"Digit found\n");
                        yylval.number=atoi((const char *)yytext); return(NUM);}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 53 "lab5.l"
+#line 54 "lab5.l"
 {if (mydebug) fprintf(stderr,"Whitespace found\n");}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 54 "lab5.l"
+#line 55 "lab5.l"
 { if (mydebug) fprintf(stderr,"return a token %c\n",*yytext);
                        return (*yytext);}
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 56 "lab5.l"
+#line 57 "lab5.l"
 { if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext);
                        linecount++;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "lab5.l"
+#line 59 "lab5.l"
 ECHO;
 	YY_BREAK
 #line 975 "lex.yy.c"
@@ -1989,7 +1989,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 58 "lab5.l"
+#line 59 "lab5.l"
 
 
 
