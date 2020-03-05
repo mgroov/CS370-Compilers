@@ -65,7 +65,7 @@ char *string;
 %%/*end of specs start of rules */
 
 program: decl
-;
+       ;
 decl:dec
     |dec decl
     ;
@@ -100,22 +100,22 @@ localdec:/*empty*/
         |vardec
 	;
 statlist:/*empty*/
-        |statement
+        |statement 
 	;
 statement:expressstat
-        |compstat
-        |selectionstat
-        |iterstat
-        |assignstat
-        |returstat
-        |readstat
-        |writestat
-        ;
+         |compstat
+         |selectionstat
+         |iterstat
+         |assignstat
+         |returstat
+         |readstat
+         |writestat
+         ;
 expressstat:expression';'
             |';'
             ;
 selectionstat:IF expression THEN statement
-             |IF expression THEN ELSE statement
+             |IF expression THEN statement  ELSE statement
              ;
 iterstat:WHILE expression DO statement 
         ;
@@ -134,7 +134,7 @@ var:ID
    |ID '['expression']'
    ;
 simpleexp:addexp
-         |addexp relop  
+         |simpleexp relop addexp 
          ;
 relop:LE
      |LT
@@ -144,13 +144,13 @@ relop:LE
      |NE
      ;
 addexp:term
-      |addop term
+      |addexp addop term
       ;
 addop:'+'
      |'-'
      ;
 term:factor
-    |mulop factor
+    |term mulop factor
     ;
 mulop:'*'
      |'/'
@@ -171,7 +171,7 @@ args:arglist
     |/*empty*/ 
     ;
 arglist:expression
-       |expression ',' arglist
+       |expression ',' arglist 
        ;
 %%	/* end of rules, start of program */
 
