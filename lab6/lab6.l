@@ -1,7 +1,7 @@
 %{
-/* lab5
+/* lab6
 Matthew Groover
-3-2-20
+3-6-20
 this handles passing tokens and values to yacc as it sees them
 everytime a new line occurs the linecount variable is incremented
 */

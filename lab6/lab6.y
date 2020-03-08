@@ -8,11 +8,13 @@
 
 
 	/* begin specs */
+#include "ast.h"
 #include <stdio.h>
 #include <ctype.h>
 
  
   extern int linecount;  /*imports the linecount from lex */
+  ASTnode *worldpointer;
   
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -32,7 +34,8 @@ int yylex();
 
 int number;
 char *string;
-
+struct ASTNODEtype *node; 
+ 
 }
 
 %token <string> ID
@@ -62,22 +65,49 @@ char *string;
 %token FALSE
 %token NOT
 
+%type <node> varlist vardec dec decl
+
 %%/*end of specs start of rules */
 
-program: decl
+program: decl { worldpointer = $1; }
        ;
-decl:dec
-    |dec decl
+decl:dec   {$$ = $1;}
+    |dec decl {
+                $1->next = $2;
+                $$=$1;
+              }
     ;
-dec:vardec
-   |fundec
+dec:vardec  {$$ = $1;}
+   |fundec  { $$ = NULL;}
    ;
-vardec:typespec varlist';'                         /*vardec , varlist handle all variable declaration */
+vardec:typespec varlist';' {$$ =$2;}                         /*vardec , varlist handle all variable declaration */
       ;
-varlist:ID
-       |ID '['NUM']' {fprintf(stderr,"there is a num it is %d \n",$3);}
-       |ID ',' varlist 
-       |ID '['NUM']'','varlist {fprintf(stderr,"there is a num it is %d \n",$3);}
+varlist:ID {
+            $$ = ASTCreateNode(vardec);
+            $$->Name = $1;
+           }
+       |ID '['NUM']' {fprintf(stderr,"there is a num it is %d \n",$3);
+                     
+                     $$=ASTCreateNode(vardec);
+		     $$->Name = $1;
+		     $$->size = $3;
+	}
+        |ID ',' varlist {
+			 $$=ASTCreateNode(vardec);
+			 $$->Name = $1;
+			  $$->s1 = $3;
+
+	 }              
+  
+       |ID '['NUM']'','varlist {fprintf(stderr,"there is a num it is %d \n",$3);
+
+                        
+                         $$=ASTCreateNode(vardec);
+			 $$->Name = $1;
+			 $$->size = $3;
+			 $$->s1 = $6;
+
+	}
        ;
 typespec:INT
         |VOID
@@ -177,4 +207,5 @@ arglist:expression
 
 int main()
 { yyparse();
-}
+  ASTprint(worldpointer,0);//prints tree 
+}//of main

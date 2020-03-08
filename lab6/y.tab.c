@@ -77,11 +77,13 @@
 
 
 	/* begin specs */
+#include "ast.h"
 #include <stdio.h>
 #include <ctype.h>
 
  
   extern int linecount;  /*imports the linecount from lex */
+  ASTnode *worldpointer;
   
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -94,7 +96,7 @@ void yyerror (s)  /* Called by yyparse on error */
 int yylex();
 /*  defines the start symbol, what values come back from LEX and how the operators are associated  */
 
-#line 98 "y.tab.c"
+#line 100 "y.tab.c"
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus
@@ -193,14 +195,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 31 "lab6.y"
+#line 33 "lab6.y"
 
 
 int number;
 char *string;
+struct ASTNODEtype *node; 
+ 
 
-
-#line 204 "y.tab.c"
+#line 207 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -508,14 +511,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    67,    67,    69,    70,    72,    73,    75,    77,    78,
-      79,    80,    82,    83,    84,    86,    88,    89,    91,    92,
-      94,    95,    97,    99,   100,   102,   103,   105,   106,   107,
-     108,   109,   110,   111,   112,   114,   115,   117,   118,   120,
-     122,   123,   125,   127,   129,   131,   133,   134,   136,   137,
-     139,   140,   141,   142,   143,   144,   146,   147,   149,   150,
-     152,   153,   155,   156,   157,   158,   160,   161,   162,   163,
-     164,   165,   166,   168,   170,   171,   173,   174
+       0,    72,    72,    74,    75,    80,    81,    83,    85,    89,
+      95,   102,   112,   113,   114,   116,   118,   119,   121,   122,
+     124,   125,   127,   129,   130,   132,   133,   135,   136,   137,
+     138,   139,   140,   141,   142,   144,   145,   147,   148,   150,
+     152,   153,   155,   157,   159,   161,   163,   164,   166,   167,
+     169,   170,   171,   172,   173,   174,   176,   177,   179,   180,
+     182,   183,   185,   186,   187,   188,   190,   191,   192,   193,
+     194,   195,   196,   198,   200,   201,   203,   204
 };
 #endif
 
@@ -1381,26 +1384,98 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 2:
+#line 72 "lab6.y"
+    { worldpointer = (yyvsp[0].node); }
+#line 1391 "y.tab.c"
+    break;
+
+  case 3:
+#line 74 "lab6.y"
+    {(yyval.node) = (yyvsp[0].node);}
+#line 1397 "y.tab.c"
+    break;
+
+  case 4:
+#line 75 "lab6.y"
+    {
+                (yyvsp[-1].node)->next = (yyvsp[0].node);
+                (yyval.node)=(yyvsp[-1].node);
+              }
+#line 1406 "y.tab.c"
+    break;
+
+  case 5:
+#line 80 "lab6.y"
+    {(yyval.node) = (yyvsp[0].node);}
+#line 1412 "y.tab.c"
+    break;
+
+  case 6:
+#line 81 "lab6.y"
+    { (yyval.node) = NULL;}
+#line 1418 "y.tab.c"
+    break;
+
+  case 7:
+#line 83 "lab6.y"
+    {(yyval.node) =(yyvsp[-1].node);}
+#line 1424 "y.tab.c"
+    break;
+
+  case 8:
+#line 85 "lab6.y"
+    {
+            (yyval.node) = ASTCreateNode(vardec);
+            (yyval.node)->Name = (yyvsp[0].string);
+           }
+#line 1433 "y.tab.c"
+    break;
+
   case 9:
-#line 78 "lab6.y"
-    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-1].number));}
-#line 1388 "y.tab.c"
+#line 89 "lab6.y"
+    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-1].number));
+                     
+                     (yyval.node)=ASTCreateNode(vardec);
+		     (yyval.node)->Name = (yyvsp[-3].string);
+		     (yyval.node)->size = (yyvsp[-1].number);
+	}
+#line 1444 "y.tab.c"
+    break;
+
+  case 10:
+#line 95 "lab6.y"
+    {
+			 (yyval.node)=ASTCreateNode(vardec);
+			 (yyval.node)->Name = (yyvsp[-2].string);
+			  (yyval.node)->s1 = (yyvsp[0].node);
+
+	 }
+#line 1455 "y.tab.c"
     break;
 
   case 11:
-#line 80 "lab6.y"
-    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-3].number));}
-#line 1394 "y.tab.c"
+#line 102 "lab6.y"
+    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-3].number));
+
+                        
+                         (yyval.node)=ASTCreateNode(vardec);
+			 (yyval.node)->Name = (yyvsp[-5].string);
+			 (yyval.node)->size = (yyvsp[-3].number);
+			 (yyval.node)->s1 = (yyvsp[0].node);
+
+	}
+#line 1469 "y.tab.c"
     break;
 
   case 67:
-#line 161 "lab6.y"
+#line 191 "lab6.y"
     {fprintf(stderr,"there is a num it is %d \n",(yyvsp[0].number));}
-#line 1400 "y.tab.c"
+#line 1475 "y.tab.c"
     break;
 
 
-#line 1404 "y.tab.c"
+#line 1479 "y.tab.c"
 
       default: break;
     }
@@ -1632,9 +1707,10 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 176 "lab6.y"
+#line 206 "lab6.y"
 	/* end of rules, start of program */
 
 int main()
 { yyparse();
-}
+  ASTprint(worldpointer,0);//prints tree 
+}//of main
