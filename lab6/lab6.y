@@ -86,7 +86,7 @@ varlist:ID {
             $$ = ASTCreateNode(vardec);
             $$->Name = $1;
            }
-       |ID '['NUM']' {fprintf(stderr,"there is a num it is %d \n",$3);
+       |ID '['NUM']' { // fprintf(stderr,"there is a num it is %d \n",$3);
                      
                      $$=ASTCreateNode(vardec);
 		     $$->Name = $1;
