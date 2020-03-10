@@ -197,13 +197,12 @@ union YYSTYPE
 {
 #line 33 "lab6.y"
 
-
 int number;
 char *string;
 struct ASTNODEtype *node; 
- 
+enum DATATYPE dtype; 
 
-#line 207 "y.tab.c"
+#line 206 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -511,14 +510,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    74,    75,    80,    81,    83,    85,    89,
-      95,   102,   112,   113,   114,   116,   118,   119,   121,   122,
-     124,   125,   127,   129,   130,   132,   133,   135,   136,   137,
-     138,   139,   140,   141,   142,   144,   145,   147,   148,   150,
-     152,   153,   155,   157,   159,   161,   163,   164,   166,   167,
-     169,   170,   171,   172,   173,   174,   176,   177,   179,   180,
-     182,   183,   185,   186,   187,   188,   190,   191,   192,   193,
-     194,   195,   196,   198,   200,   201,   203,   204
+       0,    72,    72,    74,    75,    80,    81,    83,    92,    96,
+     102,   109,   119,   120,   121,   123,   125,   126,   128,   129,
+     131,   132,   134,   136,   137,   139,   140,   142,   143,   144,
+     145,   146,   147,   148,   149,   151,   152,   154,   155,   157,
+     159,   160,   162,   164,   166,   168,   170,   171,   173,   174,
+     176,   177,   178,   179,   180,   181,   183,   184,   186,   187,
+     189,   190,   192,   193,   194,   195,   197,   198,   199,   200,
+     201,   202,   203,   205,   207,   208,   210,   211
 };
 #endif
 
@@ -1387,13 +1386,13 @@ yyreduce:
   case 2:
 #line 72 "lab6.y"
     { worldpointer = (yyvsp[0].node); }
-#line 1391 "y.tab.c"
+#line 1390 "y.tab.c"
     break;
 
   case 3:
 #line 74 "lab6.y"
     {(yyval.node) = (yyvsp[0].node);}
-#line 1397 "y.tab.c"
+#line 1396 "y.tab.c"
     break;
 
   case 4:
@@ -1402,60 +1401,67 @@ yyreduce:
                 (yyvsp[-1].node)->next = (yyvsp[0].node);
                 (yyval.node)=(yyvsp[-1].node);
               }
-#line 1406 "y.tab.c"
+#line 1405 "y.tab.c"
     break;
 
   case 5:
 #line 80 "lab6.y"
     {(yyval.node) = (yyvsp[0].node);}
-#line 1412 "y.tab.c"
+#line 1411 "y.tab.c"
     break;
 
   case 6:
 #line 81 "lab6.y"
     { (yyval.node) = NULL;}
-#line 1418 "y.tab.c"
+#line 1417 "y.tab.c"
     break;
 
   case 7:
 #line 83 "lab6.y"
-    {(yyval.node) =(yyvsp[-1].node);}
-#line 1424 "y.tab.c"
+    {(yyval.node) =(yyvsp[-1].node);
+                            ASTnode *p;
+                             p = (yyval.node);
+			     while(p!=NULL){
+                               p->datatype =  (yyvsp[-2].dtype);
+			       p=p->s1;
+			     }
+                           }
+#line 1430 "y.tab.c"
     break;
 
   case 8:
-#line 85 "lab6.y"
+#line 92 "lab6.y"
     {
             (yyval.node) = ASTCreateNode(vardec);
             (yyval.node)->Name = (yyvsp[0].string);
            }
-#line 1433 "y.tab.c"
+#line 1439 "y.tab.c"
     break;
 
   case 9:
-#line 89 "lab6.y"
-    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-1].number));
+#line 96 "lab6.y"
+    { // fprintf(stderr,"there is a num it is %d \n",$3);
                      
                      (yyval.node)=ASTCreateNode(vardec);
 		     (yyval.node)->Name = (yyvsp[-3].string);
 		     (yyval.node)->size = (yyvsp[-1].number);
 	}
-#line 1444 "y.tab.c"
+#line 1450 "y.tab.c"
     break;
 
   case 10:
-#line 95 "lab6.y"
+#line 102 "lab6.y"
     {
 			 (yyval.node)=ASTCreateNode(vardec);
 			 (yyval.node)->Name = (yyvsp[-2].string);
 			  (yyval.node)->s1 = (yyvsp[0].node);
 
 	 }
-#line 1455 "y.tab.c"
+#line 1461 "y.tab.c"
     break;
 
   case 11:
-#line 102 "lab6.y"
+#line 109 "lab6.y"
     {fprintf(stderr,"there is a num it is %d \n",(yyvsp[-3].number));
 
                         
@@ -1465,17 +1471,35 @@ yyreduce:
 			 (yyval.node)->s1 = (yyvsp[0].node);
 
 	}
-#line 1469 "y.tab.c"
-    break;
-
-  case 67:
-#line 191 "lab6.y"
-    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[0].number));}
 #line 1475 "y.tab.c"
     break;
 
+  case 12:
+#line 119 "lab6.y"
+    {(yyval.dtype)=inttype;}
+#line 1481 "y.tab.c"
+    break;
 
-#line 1479 "y.tab.c"
+  case 13:
+#line 120 "lab6.y"
+    {(yyval.dtype) = voidtype;}
+#line 1487 "y.tab.c"
+    break;
+
+  case 14:
+#line 121 "lab6.y"
+    {(yyval.dtype) = booltype;}
+#line 1493 "y.tab.c"
+    break;
+
+  case 67:
+#line 198 "lab6.y"
+    {fprintf(stderr,"there is a num it is %d \n",(yyvsp[0].number));}
+#line 1499 "y.tab.c"
+    break;
+
+
+#line 1503 "y.tab.c"
 
       default: break;
     }
@@ -1707,7 +1731,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 206 "lab6.y"
+#line 213 "lab6.y"
 	/* end of rules, start of program */
 
 int main()

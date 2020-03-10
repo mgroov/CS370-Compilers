@@ -111,13 +111,12 @@ union YYSTYPE
 {
 #line 33 "lab6.y"
 
-
 int number;
 char *string;
 struct ASTNODEtype *node; 
- 
+enum DATATYPE dtype; 
 
-#line 121 "y.tab.h"
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

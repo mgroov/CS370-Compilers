@@ -12,9 +12,15 @@ enum NODETYPE
  {
    vardec,
    fundec,
+   params
    /*insert others here */
  };//OF Node type 
-
+enum DATATYPE
+  {
+    inttype,
+    voidtype,
+    booltype
+  };
 typedef struct ASTNODEtype{
 
   enum NODETYPE type;
@@ -22,7 +28,7 @@ typedef struct ASTNODEtype{
   char *Name;
   int value;
   int size;  
-  
+  enum DATATYPE datatype;  
 }ASTnode; //of AST 
 
 void ASTprint(ASTnode *p, int level);

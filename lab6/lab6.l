@@ -7,10 +7,12 @@ everytime a new line occurs the linecount variable is incremented
 */
 
 
-int mydebug =0;
-int linecount =1;
 
+#include "ast.h"
 #include "y.tab.h"
+
+int mydebug =0;                                                                                                                                                                                                    
+int linecount =1; 
 
 int yylex();
 %}

@@ -31,11 +31,10 @@ int yylex();
 %start program
 
 %union{
-
 int number;
 char *string;
 struct ASTNODEtype *node; 
- 
+enum DATATYPE dtype; 
 }
 
 %token <string> ID
@@ -66,6 +65,7 @@ struct ASTNODEtype *node;
 %token NOT
 
 %type <node> varlist vardec dec decl
+%type <dtype> typespec
 
 %%/*end of specs start of rules */
 
@@ -80,8 +80,15 @@ decl:dec   {$$ = $1;}
 dec:vardec  {$$ = $1;}
    |fundec  { $$ = NULL;}
    ;
-vardec:typespec varlist';' {$$ =$2;}                         /*vardec , varlist handle all variable declaration */
-      ;
+vardec:typespec varlist';' {$$ =$2;
+                            ASTnode *p;
+                             p = $$;
+			     while(p!=NULL){
+                               p->datatype =  $1;
+			       p=p->s1;
+			     }
+                           }                         /*vardec , varlist handle all variable declaration */
+                           ;
 varlist:ID {
             $$ = ASTCreateNode(vardec);
             $$->Name = $1;
@@ -109,9 +116,9 @@ varlist:ID {
 
 	}
        ;
-typespec:INT
-        |VOID
-        |BOOLEAN
+typespec:INT {$$=inttype;}
+        |VOID {$$ = voidtype;}
+        |BOOLEAN {$$ = booltype;}
         ;
 fundec:typespec ID '('params')' compstat       /*handles function declaration with or without parameters */
       ;

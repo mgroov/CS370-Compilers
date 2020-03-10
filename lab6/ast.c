@@ -20,7 +20,24 @@ void ASTprint(ASTnode *p,int level)
   switch(p->type){
   case vardec:
     printtabs(level);
-    printf("variable declaration \n");
+    printf("variable declaration\n");
+    printtabs(level);
+    printf("type is: ");
+    switch(p->datatype){
+    case inttype:{
+	printf("inttype\n");
+	break;
+    }
+    case voidtype:{
+	  printf("voidtype\n");
+	  break;
+    }
+    case booltype:{
+	    printf("booltype\n");
+	    break;
+    }
+    default:break;
+    }
     printtabs(level);
     printf("name is:  %s \n ",p->Name);
     if(p->size>0){
@@ -33,6 +50,34 @@ void ASTprint(ASTnode *p,int level)
     }
     ASTprint(p->s1,level+1);
     break;
+
+  case fundec:
+    break;
+  case params:
+     printtabs(level);
+    printf("param declaration\n");
+    printtabs(level);
+    printf("type is: ");
+    switch(p->datatype){
+    case inttype:{
+        printf("inttype\n");
+        break;
+    }
+    case voidtype:{
+          printf("voidtype\n");
+          break;
+    }
+    case booltype:{
+            printf("booltype\n");
+            break;
+    }
+    default:break;
+    }
+    printtabs(level);
+    printf("name is:  %s \n ",p->Name);
+    ASTprint(p->next,level+1);
+    break;
+
 
   default:
     printf("UNKNOWN type in astPrint\n");
