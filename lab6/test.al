@@ -1,3 +1,3 @@
 int x,o,p,a,s;
-int y,z;
-int a[100];
+int y,z,i[420];
+int a[100],b;
