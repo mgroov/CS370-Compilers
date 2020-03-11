@@ -18,7 +18,7 @@ void ASTprint(ASTnode *p,int level)
   }//if the tree hasn't been created
 
   switch(p->type){
-  case vardec:
+  case vardec:{
     printtabs(level);
     printf("variable declaration\n");
     printtabs(level);
@@ -50,7 +50,7 @@ void ASTprint(ASTnode *p,int level)
     }
     ASTprint(p->s1,level+1);
     break;
-
+  }
   case fundec:
     break;
   case params:

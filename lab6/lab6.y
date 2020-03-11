@@ -64,7 +64,7 @@ enum DATATYPE dtype;
 %token FALSE
 %token NOT
 
-%type <node> varlist vardec dec decl
+%type <node> varlist vardec dec decl param paramlist params fundec compstat
 %type <dtype> typespec
 
 %%/*end of specs start of rules */
@@ -78,7 +78,7 @@ decl:dec   {$$ = $1;}
               }
     ;
 dec:vardec  {$$ = $1;}
-   |fundec  { $$ = NULL;}
+   |fundec  { $$ = $1;}
    ;
 vardec:typespec varlist';' {$$ =$2;
                             ASTnode *p;
@@ -120,18 +120,32 @@ typespec:INT {$$=inttype;}
         |VOID {$$ = voidtype;}
         |BOOLEAN {$$ = booltype;}
         ;
-fundec:typespec ID '('params')' compstat       /*handles function declaration with or without parameters */
+fundec:typespec ID '('params')' compstat{
+  $$ = ASTCreateNode(fundec);
+  $$->Name = $2;
+  $$->s1 = $4;
+  $$->s2 = $6;
+   
+      }           /*handles function declaration with or without parameters */
       ;
-params:VOID
-      |paramlist
+params:VOID  {$$ = NULL;}
+       |paramlist {$$=$1;}
       ;
-paramlist:param
-         |param ',' paramlist
+paramlist:param { $$ = $1;}
+|param ',' paramlist { $$=$1; $1->next = $3;}
          ;
-param:typespec ID
-|typespec ID '['']'                    /*param list , param handle a large ammount and what type of params work in the function declarations */
+param:typespec ID   {$$ = ASTCreateNode(params);
+                      $$->Name = $2;
+		       $$->size =0;
+		       $$->datatype = $1;
+                    }
+|typespec ID '['']' { $$ = ASTCreateNode(params);
+                      $$->Name = $2;
+                      $$->size = -1;
+		      $$->datatype = $1;
+     } /*param list , param handle a large ammount and what type of params work in the function declarations */
      ;
-compstat:MYBEGIN localdec statlist END  /*states how functions should be implemented */
+compstat:MYBEGIN localdec statlist END {$$ = NULL;} /*states how functions should be implemented */
         ;
 localdec:/*empty*/
         |vardec localdec
