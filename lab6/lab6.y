@@ -34,7 +34,8 @@ int yylex();
 int number;
 char *string;
 struct ASTNODEtype *node; 
-enum DATATYPE dtype; 
+enum DATATYPE dtype;
+enum NODETYPE type;
 }
 
 %token <string> ID
@@ -64,17 +65,19 @@ enum DATATYPE dtype;
 %token FALSE
 %token NOT
 
-%type <node> varlist vardec dec decl param paramlist params fundec compstat
-%type <dtype> typespec
+%type <node> varlist fundec vardec params expression  dec decl param paramlist compstat localdec expressstat statement statlist simpleexp
+%type <node> addexp relop 
 
+%type <dtype> typespec
 %%/*end of specs start of rules */
 
 program: decl { worldpointer = $1; }
        ;
 decl:dec   {$$ = $1;}
     |dec decl {
-                $1->next = $2;
                 $$=$1;
+                $1->next = $2;
+               
               }
     ;
 dec:vardec  {$$ = $1;}
@@ -121,81 +124,93 @@ typespec:INT {$$=inttype;}
         |BOOLEAN {$$ = booltype;}
         ;
 fundec:typespec ID '('params')' compstat{
-  $$ = ASTCreateNode(fundec);
-  $$->Name = $2;
-  $$->s1 = $4;
-  $$->s2 = $6;
+          $$ = ASTCreateNode(fundec);
+          $$->Name = $2;
+          $$->s1 = $4;
+          $$->s2 = $6;
+          $$->datatype = $1;
    
       }           /*handles function declaration with or without parameters */
       ;
-params:VOID  {$$ = NULL;}
+params:VOID {$$=NULL;}
        |paramlist {$$=$1;}
       ;
 paramlist:param { $$ = $1;}
-|param ',' paramlist { $$=$1; $1->next = $3;}
+         |param ',' paramlist { $$=$1; $1->next = $3;}
          ;
 param:typespec ID   {$$ = ASTCreateNode(params);
                       $$->Name = $2;
 		       $$->size =0;
 		       $$->datatype = $1;
                     }
-|typespec ID '['']' { $$ = ASTCreateNode(params);
+      |typespec ID '['']' { $$ = ASTCreateNode(params);
                       $$->Name = $2;
                       $$->size = -1;
 		      $$->datatype = $1;
      } /*param list , param handle a large ammount and what type of params work in the function declarations */
      ;
-compstat:MYBEGIN localdec statlist END {$$ = NULL;} /*states how functions should be implemented */
+compstat:MYBEGIN localdec statlist END {
+  $$ = ASTCreateNode(comp);
+         $$->s1 = $2;
+         $$->s2 = $3;
+        } /*states how functions should be implemented */
         ;
-localdec:/*empty*/
-        |vardec localdec
+localdec:/*empty*/ {$$ = NULL;}
+|vardec localdec { $1->next=$2;$$=$1;}
 	;
-statlist:/*empty*/
-        |statement statlist 
+statlist:/*empty*/   {$$ = NULL;}  
+|statement statlist  {$1->next = $2; $$=$1;}
 	;
-statement:expressstat
-         |compstat
-         |selectionstat
-         |iterstat
-         |assignstat
-         |returstat
-         |readstat
-         |writestat
+statement:expressstat {$$ = $1;}
+         |compstat  {$$ = NULL;}
+         |selectionstat {$$ = NULL;}
+         |iterstat {$$ = NULL;}
+         |assignstat {$$ = NULL;}
+         |returstat {$$ = NULL;}
+         |readstat {$$ = NULL;}
+         |writestat {$$ = NULL;}
          ;
-expressstat:expression';'
-            |';'
+expressstat:expression';' {
+       $$ =  ASTCreateNode(exprstmt);
+       $$->s1 = $1;
+            }
+            |';' {$$ = NULL;}
             ;
-selectionstat:IF expression THEN statement
-             |IF expression THEN statement  ELSE statement
+selectionstat:IF expression THEN statement 
+             |IF expression THEN statement ELSE statement
              ;
-iterstat:WHILE expression DO statement 
+iterstat:WHILE expression DO statement  
         ;
 returstat:MYRETURN ';'                                       /* all simple expression are right recursive in order to handle math properly */
-         |MYRETURN expression ';'
+         |MYRETURN expression ';' 
          ;
-readstat:READ var ';'
+readstat:READ var ';' 
         ;
 writestat:WRITE expression ';'               
          ;
-assignstat: var '=' simpleexp ';'          
+assignstat: var '=' simpleexp ';'       
           ;
-expression:simpleexp
+expression:simpleexp {$$ = $1;}    
           ;
 var:ID
    |ID '['expression']'
    ;
-simpleexp:addexp
-         |simpleexp relop addexp 
+simpleexp:addexp {$$ =$1;}    
+     |simpleexp relop addexp{
+       $$ = ASTCreateNode(express);
+       $$->s1=$1;
+       $$->s2=$3;
+     }
          ;
-relop:LE
-     |LT
-     |GT        /* handles relation ship operators such as <= */
-     |GE
-     |EE
-     |NE
+relop:LE {$$ = NULL;}
+     |LT {$$ = NULL;}
+     |GT {$$ = NULL;}       /* handles relation ship operators such as <= */
+     |GE {$$ = NULL;}
+     |EE {$$ = NULL;}
+     |NE {$$ = NULL;}
      ;
-addexp:term
-      |addexp addop term
+addexp:term        {$$ = NULL;}
+|addexp addop term {$$ = NULL;}
       ;
 addop:'+'
      |'-'
