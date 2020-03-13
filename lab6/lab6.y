@@ -36,6 +36,7 @@ char *string;
 struct ASTNODEtype *node; 
 enum DATATYPE dtype;
 enum NODETYPE type;
+ enum OPERATOR optype;
 }
 
 %token <string> ID
@@ -66,7 +67,9 @@ enum NODETYPE type;
 %token NOT
 
 %type <node> varlist fundec vardec params expression  dec decl param paramlist compstat localdec expressstat statement statlist simpleexp
-%type <node> addexp relop 
+%type <node> addexp relop selectionstat iterstat assignstat returstat readstat writestat var term factor
+
+%type <optype> addop
 
 %type <dtype> typespec
 %%/*end of specs start of rules */
@@ -156,19 +159,27 @@ compstat:MYBEGIN localdec statlist END {
         } /*states how functions should be implemented */
         ;
 localdec:/*empty*/ {$$ = NULL;}
-|vardec localdec { $1->next=$2;$$=$1;}
+        |vardec localdec {
+	  $1->next=$2;$$=$1;
+	  
+          }
 	;
 statlist:/*empty*/   {$$ = NULL;}  
-|statement statlist  {$1->next = $2; $$=$1;}
+|statement statlist  {
+  if($1==NULL){
+    $$=$2; 
+  }
+  $1->next = $2; $$=$1;
+  }
 	;
-statement:expressstat {$$ = $1;}
-         |compstat  {$$ = NULL;}
+statement:expressstat {$$ = NULL;}
+         |compstat  {$$ = $1;}
          |selectionstat {$$ = NULL;}
          |iterstat {$$ = NULL;}
          |assignstat {$$ = NULL;}
          |returstat {$$ = NULL;}
          |readstat {$$ = NULL;}
-         |writestat {$$ = NULL;}
+         |writestat {$$ = $1;}
          ;
 expressstat:expression';' {
        $$ =  ASTCreateNode(exprstmt);
@@ -176,30 +187,53 @@ expressstat:expression';' {
             }
             |';' {$$ = NULL;}
             ;
-selectionstat:IF expression THEN statement 
-             |IF expression THEN statement ELSE statement
+selectionstat:IF expression THEN statement {
+              $$=ASTCreateNode(iff);
+              $$->s1 = $2;
+	      $$->s2 = $4;
+              }
+              |IF expression THEN statement ELSE statement{
+	       $$=ASTCreateNode(iff);
+               $$->s1 = $2;
+               $$->s2 = $4;
+              }
              ;
-iterstat:WHILE expression DO statement  
+iterstat:WHILE expression DO statement{
+           $$ = ASTCreateNode(loop);
+	   $$->s1 = $2;
+	   $$->s2 = $4;
+         }
         ;
-returstat:MYRETURN ';'                                       /* all simple expression are right recursive in order to handle math properly */
-         |MYRETURN expression ';' 
+returstat:MYRETURN ';' {$$ = NULL;}                                      /* all simple expression are right recursive in order to handle math properly */
+         |MYRETURN expression ';' {
+           $$ = ASTCreateNode(RET);
+           $$->s1 = $2;
+         }
          ;
-readstat:READ var ';' 
+readstat:READ var ';'{
+         $$ = ASTCreateNode(RED);
+         
+	 }
         ;
-writestat:WRITE expression ';'               
+writestat:WRITE expression ';'{
+          $$ = ASTCreateNode(WRIT);
+	  $$->s1 = $2;
+          }
          ;
-assignstat: var '=' simpleexp ';'       
+assignstat: var '=' simpleexp ';'{
+          $$ = ASTCreateNode(assign);
+          
+	  $$->s2 = $3;
+          }
           ;
 expression:simpleexp {$$ = $1;}    
           ;
-var:ID
-   |ID '['expression']'
+var:ID {$$ = NULL;}
+|ID '['expression']' {$$ = NULL;} 
    ;
 simpleexp:addexp {$$ =$1;}    
      |simpleexp relop addexp{
-       $$ = ASTCreateNode(express);
-       $$->s1=$1;
-       $$->s2=$3;
+       $$ = NULL;
      }
          ;
 relop:LE {$$ = NULL;}
@@ -209,27 +243,34 @@ relop:LE {$$ = NULL;}
      |EE {$$ = NULL;}
      |NE {$$ = NULL;}
      ;
-addexp:term        {$$ = NULL;}
-|addexp addop term {$$ = NULL;}
+addexp:term        {$$ = $1;}
+|addexp addop term {
+  $$ = ASTCreateNode(expr);
+  $$->s1 = $1;
+  $$->s2 = $3;
+
+ }
       ;
-addop:'+'
-     |'-'
+addop:'+' { $$ = PLUS;}
+     |'-' { $$ = MINUS;}
      ;
-term:factor
-    |term mulop factor
+term:factor {$$ = $1;}
+    |term mulop factor {$$ = NULL;}
     ;
 mulop:'*'
      |'/'
      |AND
      |OR
      ;
-factor:'('expression')'
-      |NUM  {fprintf(stderr,"there is a num it is %d \n",$1);}  /* this detetmines how the expression statment works  */
-      |var
-      |call
-      |TRUE
-      |FALSE
-      |NOT factor
+factor:'('expression')' {$$ =NULL;}
+       |NUM  { $$ = ASTCreateNode(mynum);
+               $$->value = $1;              
+             }  /* this detetmines how the expression statment works  */
+      |var   {$$ =NULL;}
+      |call  {$$ =NULL;}
+      |TRUE  {$$ =NULL;}
+      |FALSE {$$ =NULL;}
+      |NOT factor {$$ =NULL;}
       ;
 call:ID '('args')'
     ;

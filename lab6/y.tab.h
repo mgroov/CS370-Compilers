@@ -116,8 +116,9 @@ char *string;
 struct ASTNODEtype *node; 
 enum DATATYPE dtype;
 enum NODETYPE type;
+ enum OPERATOR optype;
 
-#line 121 "y.tab.h"
+#line 122 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

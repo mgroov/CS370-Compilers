@@ -16,7 +16,14 @@ enum NODETYPE
    comp,
    iff,
    exprstmt,
-   express
+   express,
+   assign,
+   RET,
+   loop,
+   RED,
+   WRIT,
+   mynum,
+   expr
    /*insert others here */
  };//OF Node type 
 enum DATATYPE
@@ -25,6 +32,11 @@ enum DATATYPE
     voidtype,
     booltype
   };
+enum OPERATOR
+  {
+    PLUS,
+    MINUS
+};
 typedef struct ASTNODEtype{
 
   enum NODETYPE type;
@@ -32,7 +44,8 @@ typedef struct ASTNODEtype{
   char *Name ;
   int value ;
   int size ;  
-  enum DATATYPE datatype ;  
+  enum DATATYPE datatype ;
+  enum OPERATOR operator;
 }ASTnode; //of AST 
 
 void ASTprint(ASTnode *p, int level);

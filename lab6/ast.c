@@ -77,7 +77,13 @@ void ASTprint(ASTnode *p,int level)
     default:break;
     }
      printf("\n");
-    ASTprint(p->s1,level+1);
+     if(p->s1 == NULL){
+       printf("(void) no params given\n \n");
+     }
+     else{
+       ASTprint(p->s1,level+1);
+     }
+     printtabs(level);
     ASTprint(p->s2,level);
     break;
   }
@@ -119,7 +125,7 @@ void ASTprint(ASTnode *p,int level)
     printtabs(level);
     printf("BEGIN compound statment\n\n");
     printtabs(level);
-    ASTprint(p->s1,level);
+    ASTprint(p->s1,level+1);
     ASTprint(p->s2,level);
     printtabs(level);
     printf("END of compound statement\n");
@@ -131,6 +137,39 @@ void ASTprint(ASTnode *p,int level)
     printtabs(level);
     ASTprint(p->s1,level);
     ASTprint(p->s2,level);
+    break;
+  }
+  case express:{
+    printtabs(level);
+    printf("Expression Found \n");
+    printtabs(level);
+    break;
+  }
+  case WRIT:{
+    printtabs(level);
+    printf("write Found \n");
+    ASTprint(p->s1,level);
+    printtabs(level);
+    break;
+  }
+  case mynum:{
+    printf("found a num \n %d\n",p->value);
+    break;
+  }
+  case expr:{
+    printf("expression found \n");
+    printf("operator is ");
+    switch(p->operator){
+    case PLUS:{
+      printf("plus \n");
+      break;
+    }
+    default:{
+      printf("unknown operator type \n");
+    }
+    }
+    ASTprint(p->s1,level+1);
+    ASTprint(p->s2,level+1);
     break;
   }
   default:
