@@ -131,20 +131,6 @@ void ASTprint(ASTnode *p,int level)
     printf("END of compound statement\n");
     break;
   }
-  case iff:{
-    printtabs(level);
-    printf("IF:\n");
-    printtabs(level);
-    ASTprint(p->s1,level);
-    ASTprint(p->s2,level);
-    break;
-  }
-  case express:{
-    printtabs(level);
-    printf("Expression Found \n");
-    printtabs(level);
-    break;
-  }
   case WRIT:{
     printtabs(level);
     printf("write Found \n");
@@ -153,7 +139,7 @@ void ASTprint(ASTnode *p,int level)
     break;
   }
   case mynum:{
-    printf("found a num \n %d\n",p->value);
+    printf("found a num \n %d\n\n",p->value);
     break;
   }
   case expr:{
@@ -161,20 +147,57 @@ void ASTprint(ASTnode *p,int level)
     printf("operator is ");
     switch(p->operator){
     case PLUS:{
-      printf("plus \n");
+      printf("plus \n\n");
       break;
     }
-    default:{
-      printf("unknown operator type \n");
+    case MINUS:{
+      printf("minus \n\n");
+      break;
     }
+    case LessThan:{printf("less than\n\n"); break;}
+    case LessEqual:{printf("less than or equal\n\n");break;}
+    case GreatThan:{printf("Greater than\n\n");break;}
+    case GreatEqual:{printf("Greater than or equal\n\n");break;}
+    case Equal:{printf("equal\n\n");break;}
+    case NotEqual:{printf("not equal \n\n");break;}
+
+    default:break;
     }
-    ASTprint(p->s1,level+1);
-    ASTprint(p->s2,level+1);
+    ASTprint(p->s1,level);
+    ASTprint(p->s2,level);
+    ASTprint(p->next,level);
     break;
   }
-  default:
+  case VAR:{
+    printtabs(level);
+    printf("variable found\n");
+    printtabs(level);
+    printf("name is: %s \n\n",p->Name);
+    if(p->s1 != NULL){
+      printtabs(level);
+      printf("it is an array refrence at\n\n");
+      ASTprint(p->s1,level);
+    }
+    break;
+  }
+  case TF:{
+    printtabs(level);
+    printf("found a boolean\n");
+	   if(p->value){
+	     printtabs(level);
+	     printf("it is truth\n\n");
+	   }
+	   else{
+            printtabs(level);
+            printf("it is false\n\n");
+	   }
+	   break;
+	   }//of tf
+  default:{
     printf("UNKNOWN type in astPrint\n");
     break;
+    }
+ 
   }//of switch case 
 
   

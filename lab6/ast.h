@@ -23,7 +23,9 @@ enum NODETYPE
    RED,
    WRIT,
    mynum,
-   expr
+   expr,
+   VAR,
+   TF
    /*insert others here */
  };//OF Node type 
 enum DATATYPE
@@ -35,7 +37,13 @@ enum DATATYPE
 enum OPERATOR
   {
     PLUS,
-    MINUS
+    MINUS,
+    LessThan,
+    LessEqual,
+    GreatThan,
+    GreatEqual,
+    Equal,
+    NotEqual
 };
 typedef struct ASTNODEtype{
 

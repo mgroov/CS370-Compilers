@@ -67,9 +67,9 @@ enum NODETYPE type;
 %token NOT
 
 %type <node> varlist fundec vardec params expression  dec decl param paramlist compstat localdec expressstat statement statlist simpleexp
-%type <node> addexp relop selectionstat iterstat assignstat returstat readstat writestat var term factor
+%type <node> addexp selectionstat iterstat assignstat returstat readstat writestat var term factor
 
-%type <optype> addop
+%type <optype> addop relop
 
 %type <dtype> typespec
 %%/*end of specs start of rules */
@@ -226,60 +226,94 @@ assignstat: var '=' simpleexp ';'{
 	  $$->s2 = $3;
           }
           ;
+
+
+
 expression:simpleexp {$$ = $1;}    
           ;
-var:ID {$$ = NULL;}
-|ID '['expression']' {$$ = NULL;} 
+
+
+var:ID {$$=ASTCreateNode(VAR);
+         $$->Name = $1;
+	 $$->s1 = NULL;
+     }
+   |ID '['expression']' {$$=ASTCreateNode(VAR);
+         $$->Name = $1; 
+         $$->s1 = $3;  
+    } 
    ;
+
+
+
+
 simpleexp:addexp {$$ =$1;}    
      |simpleexp relop addexp{
-       $$ = NULL;
+       $$->s1 = $1;
+       $$->s2 = $3;
+       $$->operator = $2;
      }
          ;
-relop:LE {$$ = NULL;}
-     |LT {$$ = NULL;}
-     |GT {$$ = NULL;}       /* handles relation ship operators such as <= */
-     |GE {$$ = NULL;}
-     |EE {$$ = NULL;}
-     |NE {$$ = NULL;}
+
+
+relop:LE {$$ = LessEqual;}
+     |LT {$$ = LessThan;}
+     |GT {$$ = GreatThan;}       /* handles relation ship operators such as <= */
+     |GE {$$ = GreatEqual;}
+     |EE {$$ = Equal;}
+     |NE {$$ = NotEqual;}
      ;
+
+
 addexp:term        {$$ = $1;}
 |addexp addop term {
   $$ = ASTCreateNode(expr);
   $$->s1 = $1;
   $$->s2 = $3;
-
+  $$->operator = $2;
  }
-      ;
+;
+
+
 addop:'+' { $$ = PLUS;}
      |'-' { $$ = MINUS;}
      ;
+
 term:factor {$$ = $1;}
     |term mulop factor {$$ = NULL;}
     ;
+
 mulop:'*'
      |'/'
      |AND
      |OR
      ;
-factor:'('expression')' {$$ =NULL;}
+
+factor:'('expression')' {$$ =$2;}
        |NUM  { $$ = ASTCreateNode(mynum);
-               $$->value = $1;              
+               $$->value = $1;
              }  /* this detetmines how the expression statment works  */
-      |var   {$$ =NULL;}
+      |var   {$$ = $1;}
       |call  {$$ =NULL;}
-      |TRUE  {$$ =NULL;}
-      |FALSE {$$ =NULL;}
-      |NOT factor {$$ =NULL;}
+      |TRUE  {$$ =ASTCreateNode(TF);
+              $$->value = 1;
+       }
+      |FALSE {$$ =ASTCreateNode(TF);
+              $$->value =0;
+       }
+      |NOT factor {$$ = NULL;}
       ;
+
 call:ID '('args')'
     ;
+
 args:/*empty*/
     |arglist 
     ;
+
 arglist:expression
        |expression ',' arglist 
        ;
+
 %%	/* end of rules, start of program */
 
 int main()

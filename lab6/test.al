@@ -5,6 +5,7 @@ int main(int a, int b[])
     int alpha;
     int beta[100],gamma[50];
 
-write 3 + 5;
+write (x + y);
+write (x[3]);
 
     end
