@@ -128,7 +128,8 @@ void ASTprint(ASTnode *p,int level)
     ASTprint(p->s1,level+1);
     ASTprint(p->s2,level);
     printtabs(level);
-    printf("END of compound statement\n");
+    printf("END of compound statement\n\n");
+    ASTprint(p->next,level);
     break;
   }
   case WRIT:{
@@ -136,14 +137,20 @@ void ASTprint(ASTnode *p,int level)
     printf("write Found \n");
     ASTprint(p->s1,level);
     printtabs(level);
+    ASTprint(p->next,level);
     break;
   }
   case mynum:{
-    printf("found a num \n %d\n\n",p->value);
+    printtabs(level);
+    printf("Number found: \n");
+    printtabs(level);
+    printf("%d\n\n",p->value);
     break;
   }
   case expr:{
+    printtabs(level);
     printf("expression found \n");
+    printtabs(level);
     printf("operator is ");
     switch(p->operator){
     case PLUS:{
@@ -160,7 +167,10 @@ void ASTprint(ASTnode *p,int level)
     case GreatEqual:{printf("Greater than or equal\n\n");break;}
     case Equal:{printf("equal\n\n");break;}
     case NotEqual:{printf("not equal \n\n");break;}
-
+    case multi:{printf("multiply \n\n");break;}
+    case devi:{printf("divide \n\n");break;}
+    case aNd:{printf("and\n\n");break;}
+    case oR:{printf("or\n\n");break;}
     default:break;
     }
     ASTprint(p->s1,level);
@@ -169,6 +179,9 @@ void ASTprint(ASTnode *p,int level)
     break;
   }
   case VAR:{
+    if(p==NULL){
+      break;
+    }
     printtabs(level);
     printf("variable found\n");
     printtabs(level);
@@ -178,6 +191,7 @@ void ASTprint(ASTnode *p,int level)
       printf("it is an array refrence at\n\n");
       ASTprint(p->s1,level);
     }
+    ASTprint(p->next,level);
     break;
   }
   case TF:{
@@ -193,6 +207,81 @@ void ASTprint(ASTnode *p,int level)
 	   }
 	   break;
 	   }//of tf
+  case assign:{
+    printtabs(level);
+    printf("assignment statement \n\n");  printtabs(level); printf("left side:\n");
+    ASTprint(p->s1,level);
+    printtabs(level);
+    printf("right side: \n");
+    ASTprint(p->s2,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case iff:{
+    printtabs(level);
+    printf("IF statement found \n\n");
+    ASTprint(p->s1,level+1);
+    printtabs(level);
+    printf("THEN do \n\n");
+    ASTprint(p->s2,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case exprstmt:{
+    printtabs(level);
+    printf("expression stat found\n");
+    ASTprint(p->s1,level);
+    ASTprint(p->next,level);
+    break;
+  }
+  case loop:{
+    printtabs(level);
+    printf("WHILE statment found \n\n");
+    ASTprint(p->s1,level+1);
+    printtabs(level);
+    printf("DO \n\n");
+    ASTprint(p->s2,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case RED:{
+    printtabs(level);
+    printf("read statment found \n");
+    printtabs(level);
+    printf("target is: \n");
+    ASTprint(p->s1,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case RET:{
+    printtabs(level);
+    printf("return statment found \n");
+    printtabs(level);
+    printf("returning: \n");
+    ASTprint(p->s1,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case callme:{
+    printtabs(level);
+    printf("call to function: %s \n",p->Name);
+    printtabs(level);
+    printf("with the args \n\n");
+    printtabs(level);
+    if(p->s1==NULL){printf("void \n");}
+    ASTprint(p->s1,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
+  case nOt:{
+    printtabs(level);
+    printf(" Not funtion found \n");
+    printtabs(level);
+    printf("target is: \n");
+    ASTprint(p->s1,level+1);
+    ASTprint(p->next,level);
+    break;
+  }
   default:{
     printf("UNKNOWN type in astPrint\n");
     break;

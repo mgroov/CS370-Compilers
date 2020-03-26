@@ -25,7 +25,9 @@ enum NODETYPE
    mynum,
    expr,
    VAR,
-   TF
+   TF,
+   callme,
+   nOt
    /*insert others here */
  };//OF Node type 
 enum DATATYPE
@@ -43,7 +45,11 @@ enum OPERATOR
     GreatThan,
     GreatEqual,
     Equal,
-    NotEqual
+    NotEqual,
+    devi,
+    multi,
+    aNd,
+    oR
 };
 typedef struct ASTNODEtype{
 

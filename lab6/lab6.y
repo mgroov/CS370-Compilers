@@ -67,9 +67,9 @@ enum NODETYPE type;
 %token NOT
 
 %type <node> varlist fundec vardec params expression  dec decl param paramlist compstat localdec expressstat statement statlist simpleexp
-%type <node> addexp selectionstat iterstat assignstat returstat readstat writestat var term factor
+%type <node> addexp selectionstat iterstat assignstat returstat readstat writestat var term factor call args arglist
 
-%type <optype> addop relop
+%type <optype> addop relop mulop
 
 %type <dtype> typespec
 %%/*end of specs start of rules */
@@ -112,7 +112,7 @@ varlist:ID {
 
 	 }              
   
-       |ID '['NUM']'','varlist {fprintf(stderr,"there is a num it is %d \n",$3);
+       |ID '['NUM']'','varlist {
 
                         
                          $$=ASTCreateNode(vardec);
@@ -172,13 +172,13 @@ statlist:/*empty*/   {$$ = NULL;}
   $1->next = $2; $$=$1;
   }
 	;
-statement:expressstat {$$ = NULL;}
+statement:expressstat {$$ = $1;}
          |compstat  {$$ = $1;}
-         |selectionstat {$$ = NULL;}
-         |iterstat {$$ = NULL;}
-         |assignstat {$$ = NULL;}
-         |returstat {$$ = NULL;}
-         |readstat {$$ = NULL;}
+         |selectionstat {$$ = $1;}
+         |iterstat {$$ = $1;}
+         |assignstat {$$ = $1;}
+         |returstat {$$ = $1;}
+         |readstat {$$ = $1;}
          |writestat {$$ = $1;}
          ;
 expressstat:expression';' {
@@ -212,7 +212,7 @@ returstat:MYRETURN ';' {$$ = NULL;}                                      /* all 
          ;
 readstat:READ var ';'{
          $$ = ASTCreateNode(RED);
-         
+         $$->s1 = $2;
 	 }
         ;
 writestat:WRITE expression ';'{
@@ -222,7 +222,7 @@ writestat:WRITE expression ';'{
          ;
 assignstat: var '=' simpleexp ';'{
           $$ = ASTCreateNode(assign);
-          
+          $$->s1 = $1;
 	  $$->s2 = $3;
           }
           ;
@@ -248,11 +248,12 @@ var:ID {$$=ASTCreateNode(VAR);
 
 simpleexp:addexp {$$ =$1;}    
      |simpleexp relop addexp{
+       $$ = ASTCreateNode(expr);
        $$->s1 = $1;
        $$->s2 = $3;
        $$->operator = $2;
      }
-         ;
+     ;
 
 
 relop:LE {$$ = LessEqual;}
@@ -279,13 +280,18 @@ addop:'+' { $$ = PLUS;}
      ;
 
 term:factor {$$ = $1;}
-    |term mulop factor {$$ = NULL;}
+    |term mulop factor {
+      $$ =ASTCreateNode(expr);
+      $$->operator = $2;
+      $$->s1 = $1;
+      $$->s2 = $3;
+     }
     ;
 
-mulop:'*'
-     |'/'
-     |AND
-     |OR
+mulop:'*' {$$= multi;}
+     |'/' {$$ = devi;}
+     |AND {$$ = aNd;}
+     |OR  {$$ = oR;}
      ;
 
 factor:'('expression')' {$$ =$2;}
@@ -293,25 +299,34 @@ factor:'('expression')' {$$ =$2;}
                $$->value = $1;
              }  /* this detetmines how the expression statment works  */
       |var   {$$ = $1;}
-      |call  {$$ =NULL;}
+      |call  {$$ =$1;}
       |TRUE  {$$ =ASTCreateNode(TF);
               $$->value = 1;
        }
       |FALSE {$$ =ASTCreateNode(TF);
               $$->value =0;
        }
-      |NOT factor {$$ = NULL;}
+|NOT factor {$$ = ASTCreateNode(nOt);
+   $$->s1 = $2;
+      }
       ;
 
-call:ID '('args')'
+call:ID '('args')'{
+    $$=ASTCreateNode(callme);
+    $$->Name = $1;
+    $$->s1 = $3;
+    }
     ;
 
-args:/*empty*/
-    |arglist 
+args:/*empty*/ {$$ = NULL;}
+    |arglist {$$ = $1;}
     ;
 
-arglist:expression
-       |expression ',' arglist 
+arglist:expression {$$=$1;}
+       |expression ',' arglist {
+         $1->s1 = $3;
+	 $$ = $1;
+       }
        ;
 
 %%	/* end of rules, start of program */
