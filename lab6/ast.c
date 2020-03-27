@@ -85,6 +85,7 @@ void ASTprint(ASTnode *p,int level)
      }
      printtabs(level);
     ASTprint(p->s2,level);
+    ASTprint(p->next,level);
     break;
   }
   case params:{
@@ -188,8 +189,10 @@ void ASTprint(ASTnode *p,int level)
     printf("name is: %s \n\n",p->Name);
     if(p->s1 != NULL){
       printtabs(level);
-      printf("it is an array refrence at\n\n");
+      printf("it is an array refrence at [\n\n");
       ASTprint(p->s1,level);
+      printtabs(level);
+      printf("] end of array refrence \n");
     }
     ASTprint(p->next,level);
     break;
