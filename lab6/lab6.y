@@ -182,7 +182,8 @@ statement:expressstat {$$ = $1;}  /* these point to all forms of expression */
          |writestat {$$ = $1;}
          ;
 expressstat:expression';' {
-       $$= $1;
+  $$= ASTCreateNode(exprstmt);
+  $$->s1 = $1;
             }
             |';' {$$ = NULL;}
             ;
