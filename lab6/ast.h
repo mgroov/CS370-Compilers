@@ -27,7 +27,8 @@ enum NODETYPE
    VAR,
    TF,
    callme,
-   nOt
+   nOt,
+   iffbody
    /*insert others here */
  };//OF Node type 
 enum DATATYPE

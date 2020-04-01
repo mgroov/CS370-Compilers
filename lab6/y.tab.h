@@ -111,7 +111,7 @@ union YYSTYPE
 int number;
 char *string;
 struct ASTNODEtype *node; 
-enum DATATYPE dtype;
+ enum DATATYPE dtype;      /*global types to handle operators and nodes */
 enum NODETYPE type;
  enum OPERATOR optype;
 
