@@ -12,6 +12,21 @@ ASTnode *ASTCreateNode(enum NODETYPE type)
 
 }//of create node
 
+
+//function to check formal and actual params
+int checkFormalsandParams(ASTnode *f, ASTnode *a){
+
+  if(f==NULL && a==NULL){
+    return 1;
+  }
+  if(f==NULL || a==NULL){                                                                                                                                                                                                                        return 0;                                                                                                                                                                                                                                  }
+  if(f->semtype != a->semtype){
+    return 0;
+  }
+  return checkFormalsandParams(f->next,a->next);
+}
+
+
 void ASTprint(ASTnode *p,int level)
 {
   if(p==NULL){
@@ -269,6 +284,13 @@ void ASTprint(ASTnode *p,int level)
     printf(" Not of: \n ");
     ASTprint(p->s1,level+1); /*creates the node to handle not */
     ASTprint(p->next,level); 
+    break;
+  }
+  case ARGLIST:{
+    printtabs(level);
+    printf("Args list\n");
+    ASTprint(p->s1,level+1);
+    ASTprint(p->next,level);
     break;
   }
   default:{

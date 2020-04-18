@@ -8,5 +8,5 @@
 all: 
 	yacc -d lab7.y 
 	lex lab7.l
-	gcc lex.yy.c y.tab.c ast.c -o lab7
+	gcc lex.yy.c y.tab.c ast.c symtable.c -o lab7
 	

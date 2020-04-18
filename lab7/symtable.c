@@ -15,20 +15,20 @@
 */
 
     
-#include <string.h>
+
 #include "symtable.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-
-
-
-
+struct SymbTab * first  = NULL;
 
 
 
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
 
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset , ASTnode * fparms)
+struct SymbTab * Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offset , ASTnode * fparms)
 
 {
   struct SymbTab * n;

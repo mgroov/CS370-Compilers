@@ -21,7 +21,7 @@
 #ifndef _SYMTAB 
 #define _SYMTAB
 
-int mem=0;
+
 void Display();
 int Delete();
 
@@ -33,13 +33,13 @@ struct SymbTab
      int offset; /* from activation record boundary */
      int mysize;  /* number of words this item is 1 or more */
      int level;  /* the level where we found the variable */
-     enum OPERATORS Type;  /* the type of the symbol */
+     enum OPERATOR Type;  /* the type of the symbol */
      int IsAFunc;  /* the element is a function */
      ASTnode * fparms; /* pointer to parameters of the function in the AST */
-
      struct SymbTab *next;
 };
 
+struct SymbTab * Search(char name[], int level, int recur);
 
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset, ASTnode * fparms );
+struct SymbTab * Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offset, ASTnode * fparms );
 #endif

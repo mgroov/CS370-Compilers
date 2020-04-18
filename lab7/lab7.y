@@ -1,4 +1,4 @@
-%{
+ %{
 
 /*  Matthew Groover 
     3-2-20 - 3-27-20
@@ -11,10 +11,21 @@
 #include "ast.h"
 #include <stdio.h>
 #include <ctype.h>
-
+#include  <stdlib.h>
+#include "symtable.h"  
  
   extern int linecount;  /*imports the linecount from lex */
   ASTnode *worldpointer;
+  
+  int level=0; /* the level of compund statments */
+
+  int offset =0; // current offset
+                 //offset is measured in words
+
+  int goffset;
+
+  int maxoffset; // holds the maximum amount of memory required for a function
+
   
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -92,28 +103,83 @@ vardec:typespec varlist';' {$$ =$2;
 			     while(p!=NULL){
                                p->datatype =  $1;
 			       p=p->s1;
+			       
 			     }
                            }                         /*vardec , varlist handle all variable declaration */
                            ;
 varlist:ID {
-            $$ = ASTCreateNode(vardec);
+  if(Search($1,level,0) != NULL){
+    yyerror("duplicate declaration \n");
+    yyerror($1);
+    exit(1);
+  }
+  else{
+
+    Insert($1,-1,0,level,1,offset,NULL);
+    /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+			    Tnode * fparms ); */
+    offset = offset +1;
+    Display();
+  }
+           $$ = ASTCreateNode(vardec);
             $$->Name = $1;
+	    $$->size =1;
            }
        |ID '['NUM']' { // fprintf(stderr,"there is a num it is %d \n",$3);
-                     
+
+	 if(Search($1,level,0) != NULL){
+	   yyerror("duplicate declaration \n");
+	   yyerror($1);
+	   exit(1);
+	 }
+	 else{
+
+	   Insert($1,-1,2,level,$3,offset,NULL);
+	   /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+	     Tnode * fparms ); */
+	   offset = offset + $3;
+	   Display();
+	 }
                      $$=ASTCreateNode(vardec);
 		     $$->Name = $1;
 		     $$->size = $3;
 	}
         |ID ',' varlist {
-	  $$=ASTCreateNode(vardec);  /*these handle all variable declarations varlist recusively points at itself hence the null handle */
+	  if(Search($1,level,0) != NULL){
+	    yyerror("duplicate declaration \n");
+	    yyerror($1);
+	    exit(1);
+	  }
+	  else{
+
+	    Insert($1,-1,0,level,1,offset,NULL);
+	    /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+	      Tnode * fparms ); */
+	    offset = offset +1;
+	    Display();
+	  }
+	  
+	                 $$=ASTCreateNode(vardec);  /*these handle all variable declarations varlist recusively points at itself hence the null handle */
 			 $$->Name = $1;
 			  $$->s1 = $3;
+			  $$->size =1;
 
 	 }              
   
        |ID '['NUM']'','varlist {
+	 if(Search($1,level,0) != NULL){
+	   yyerror("duplicate declaration \n");
+	   yyerror($1);
+	   exit(1);
+	 }
+	 else{
 
+	   Insert($1,-1,2,level,$3,offset,NULL);
+	   /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+	     Tnode * fparms ); */
+	   offset = offset +$3;
+	   Display();
+	 }
                         
                          $$=ASTCreateNode(vardec);
 			 $$->Name = $1;
@@ -122,15 +188,35 @@ varlist:ID {
 
 	}
        ;
-typespec:INT {$$=inttype;}
-|VOID {$$ = voidtype;}   /* this assigns type to a vardec or list based on what is present */
-        |BOOLEAN {$$ = booltype;}
+typespec:INT {$$=inttype;
+  }
+|VOID {$$ = voidtype;
+        }   /* this assigns type to a vardec or list based on what is present */
+        |BOOLEAN {$$ = booltype;
+	 }
         ;
-fundec:typespec ID '('params')' compstat{
+fundec:typespec ID '('{
+  if(Search($2,level,0) != NULL){
+    yyerror("duplicate function declaration \n");
+    yyerror($1);
+    exit(1);
+  }
+  
+  goffset = offset;
+  offset =0;
+
+  }params{
+
+    Insert($2, $1, 1, level, 1, goffset, $5 );
+    goffset +=1; //inserts function
+    Display();
+
+   }')' compstat{
+  
           $$ = ASTCreateNode(fundec);
           $$->Name = $2;
-          $$->s1 = $4;                  
-          $$->s2 = $6;
+          $$->s1 = $5;                  
+          $$->s2 = $8;
           $$->datatype = $1;
    
       }           /*handles function declaration with or without parameters */
@@ -141,21 +227,55 @@ params:VOID {$$=NULL;}
 paramlist:param { $$ = $1;}
          |param ',' paramlist { $$=$1; $1->next = $3;}
          ;
-param:typespec ID   {$$ = ASTCreateNode(params);
+param:typespec ID   {  if(Search($2,level+1,0) != NULL){
+     yyerror("duplicate declaration \n");
+     yyerror($2);
+     exit(1);
+   }
+   else{
+
+     Insert($2,$1,0,level+1,1,offset,NULL);
+     /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+       Tnode * fparms ); */
+     offset = offset +1;
+     Display();
+
+   }
+
+  $$ = ASTCreateNode(params);
                       $$->Name = $2;
-		       $$->size =0;
+		       $$->size =1;
 		       $$->datatype = $1;
+		       $$->semtype = $1;
                     }
-      |typespec ID '['']' { $$ = ASTCreateNode(params);
+|typespec ID '['']' { if(Search($2,level+1,0) != NULL){
+      yyerror("duplicate declaration \n");
+      yyerror($2);                                                                                                                                                                                                                                 exit(1);
+    }
+    else{
+
+      Insert($2,$1,2,level+1,1,offset,NULL);
+      /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
+	Tnode * fparms ); */
+      offset = offset +1;
+      Display();                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
+
+
+	$$ = ASTCreateNode(params);
                       $$->Name = $2;
-                      $$->size = -1;
+                      $$->size = 2;
 		      $$->datatype = $1;
      } /*param list , param handle a large ammount and what type of params work in the function declarations */
      ;
-compstat:MYBEGIN localdec statlist END {
+compstat:MYBEGIN {level +=1;} localdec statlist END {
   $$ = ASTCreateNode(comp);
-         $$->s1 = $2;
-         $$->s2 = $3;
+         $$->s1 = $3;
+         $$->s2 = $4;
+	 if(offset > maxoffset){
+	   maxoffset = offset;
+	 }
+	 level -=1;
+	 offset -= Delete(level);
         } /*states how functions should be implemented */
         ;
 localdec:/*empty*/ {$$ = NULL;}
@@ -227,6 +347,11 @@ writestat:WRITE expression ';'{
           }
          ;
 assignstat: var '=' simpleexp ';'{
+  if($1->semtype != $3->semtype){
+    yyerror("type mismatch on assignment \n");
+    exit(1);
+  }
+            
           $$ = ASTCreateNode(assign); /*assignment statement handle */
           $$->s1 = $1;
 	  $$->s2 = $3;
@@ -239,13 +364,35 @@ expression:simpleexp {$$ = $1;}
           ;
 
 
-var:ID {$$=ASTCreateNode(VAR); /*this is a leaf it often should not have anyone other nodes */
+var:ID { struct SymbTab* search = Search($1,level,1);
+    if(search == NULL ){
+      yyerror("variable does not exist \n");
+      yyerror($1);
+      exit(1);
+    }
+    if(search->IsAFunc !=0){
+      yyerror("needs to be a scalar \n");
+      yyerror($1);
+      exit(1);
+    }
+         $$=ASTCreateNode(VAR); /*this is a leaf it often should not have anyone other nodes */
          $$->Name = $1;
+	 $$->symbol = search;
+	 $$->semtype = search->Type;
 	 $$->s1 = NULL;
      }
-   |ID '['expression']' {$$=ASTCreateNode(VAR);
+|ID '['expression']' { struct SymbTab* search = Search($1,level,1);
+    if(search == NULL ){                                                                                                                                                                                                                           yyerror("variable does not exist \n");                                                                                                                                                                                                       yyerror($1);
+      exit(1);
+    }
+    if(search->IsAFunc !=2){                                                                                                                                                                                                                       yyerror("needs to be an array \n");                                                                                                                                                                                                          yyerror($1);
+      exit(1);                                                                                                                                                                                                                                   }  
+    
+     $$=ASTCreateNode(VAR);
          $$->Name = $1; 
-         $$->s1 = $3;  
+         $$->s1 = $3;
+	 $$->symbol = search;
+	 $$->semtype = search->Type;
     } 
    ;
 
@@ -254,10 +401,20 @@ var:ID {$$=ASTCreateNode(VAR); /*this is a leaf it often should not have anyone 
 
 simpleexp:addexp {$$ =$1;}    
      |simpleexp relop addexp{
+
+       if($1->semtype != $3->semtype){
+
+
+	 yyerror("type mismatch \n");
+	 exit(1);
+	 
+       }
+       
        $$ = ASTCreateNode(expr);
        $$->s1 = $1;
        $$->s2 = $3;             /* this handles most of our addition and subtraction cases*/
        $$->operator = $2;
+       $$->semtype = $1->semtype;
      }
      ;
 
@@ -273,10 +430,18 @@ relop:LE {$$ = LessEqual;}
 
 addexp:term        {$$ = $1;}
 |addexp addop term {
+
+  if($1->semtype != $3->semtype){
+
+    yyerror("type mismatch \n");
+    exit(1);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+
+  
   $$ = ASTCreateNode(expr);
   $$->s1 = $1;
   $$->s2 = $3;
   $$->operator = $2;
+  $$->semtype = $1->semtype;
  }
 ;
 
@@ -287,10 +452,16 @@ addop:'+' { $$ = PLUS;}
 
 term:factor {$$ = $1;}
     |term mulop factor {
+      if($1->semtype != $3->semtype){
+
+	yyerror("type mismatch \n");
+	exit(1);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+      
       $$ =ASTCreateNode(expr);
       $$->operator = $2;
       $$->s1 = $1;
       $$->s2 = $3;
+      $$->semtype = $1->semtype;
      }
     ;
 
@@ -303,24 +474,50 @@ mulop:'*' {$$= multi;}
 factor:'('expression')' {$$ =$2;}
        |NUM  { $$ = ASTCreateNode(mynum);
                $$->value = $1;
+	       $$->semtype = inttype;
              }  /* this detetmines how the expression statment works  */
-      |var   {$$ = $1;}
+      |var   {$$ = $1;
+
+             }
       |call  {$$ =$1;}
       |TRUE  {$$ =ASTCreateNode(TF);
               $$->value = 1;
+	      $$->semtype = booltype;
        }
       |FALSE {$$ =ASTCreateNode(TF);
               $$->value =0;
+	      $$->semtype = booltype;
        }
-|NOT factor {$$ = ASTCreateNode(nOt);
+|NOT factor { if($2->semtype != booltype){
+      yyerror("not needs a boolean type\n");
+      exit(1);
+    }
+  $$ = ASTCreateNode(nOt);
    $$->s1 = $2;
+   $$->semtype = $2->semtype;
       }
       ;
 
 call:ID '('args')'{
+  struct SymbTab* search = Search($1,level,1);
+  if(search == NULL ){                                                                                                                                                                                                                       yyerror("function does not exist \n");                                                                                                                                                                                                       yyerror($1);
+    exit(1);
+  }
+  if(search->IsAFunc !=1){                                                                                                                                                                                                                       yyerror("needs to be a function \n");                                                                                                                                                                                                       yyerror($1);
+    exit(1);                                                                                                                                                                                                                                   }
+
+  //check the formal vs actual
+  if(checkFormalsandParams(search->fparms,$3) != 1)
+    {  yyerror("function actual and formal params mismatch \n");
+      exit(1);
+
+    }
+  
     $$=ASTCreateNode(callme);
     $$->Name = $1;
     $$->s1 = $3;
+    $$->symbol =search;
+    $$->semtype = search->Type;
     }
     ;
 
@@ -328,10 +525,16 @@ args:/*empty*/ {$$ = NULL;}
     |arglist {$$ = $1;}
     ;
 
-arglist:expression {$$=$1;}
+arglist:expression {$$=ASTCreateNode(ARGLIST);
+    $$->s1 = $1;
+    $$->semtype = $1->semtype;
+    $$->next = NULL;
+       }
        |expression ',' arglist {
-         $1->s1 = $3;
-	 $$ = $1;
+	 $$=ASTCreateNode(ARGLIST);
+         $$->next = $3;
+	 $$->semtype = $1->semtype; 
+	 $$->s1 = $1;
        }
        ;
 
@@ -339,5 +542,5 @@ arglist:expression {$$=$1;}
 
 int main()
 { yyparse();
-  ASTprint(worldpointer,0);//prints tree 
+  // ASTprint(worldpointer,0);//prints tree 
 }//of main
