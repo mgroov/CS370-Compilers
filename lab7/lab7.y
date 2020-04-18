@@ -102,8 +102,8 @@ vardec:typespec varlist';' {$$ =$2;
                              p = $$;       
 			     while(p!=NULL){
                                p->datatype =  $1;
+			       Search(p->Name,level,0)->Type = $1;
 			       p=p->s1;
-			       
 			     }
                            }                         /*vardec , varlist handle all variable declaration */
                            ;
@@ -119,7 +119,6 @@ varlist:ID {
     /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
 			    Tnode * fparms ); */
     offset = offset +1;
-    Display();
   }
            $$ = ASTCreateNode(vardec);
             $$->Name = $1;
@@ -156,7 +155,7 @@ varlist:ID {
 	    /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
 	      Tnode * fparms ); */
 	    offset = offset +1;
-	    Display();
+	    
 	  }
 	  
 	                 $$=ASTCreateNode(vardec);  /*these handle all variable declarations varlist recusively points at itself hence the null handle */
@@ -178,7 +177,7 @@ varlist:ID {
 	   /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
 	     Tnode * fparms ); */
 	   offset = offset +$3;
-	   Display();
+	   
 	 }
                         
                          $$=ASTCreateNode(vardec);
@@ -207,7 +206,7 @@ fundec:typespec ID '('{
 
   }params{
 
-    Insert($2, $1, 1, level, 1, goffset, $5 );
+    Insert($2, $1, 1, level, 1,goffset, $5 );
     goffset +=1; //inserts function
     Display();
 
@@ -218,7 +217,8 @@ fundec:typespec ID '('{
           $$->s1 = $5;                  
           $$->s2 = $8;
           $$->datatype = $1;
-   
+	  offset = goffset;
+          
       }           /*handles function declaration with or without parameters */
       ;
 params:VOID {$$=NULL;}
@@ -237,7 +237,7 @@ param:typespec ID   {  if(Search($2,level+1,0) != NULL){
      Insert($2,$1,0,level+1,1,offset,NULL);
      /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
        Tnode * fparms ); */
-     offset = offset +1;
+     
      Display();
 
    }
@@ -271,11 +271,9 @@ compstat:MYBEGIN {level +=1;} localdec statlist END {
   $$ = ASTCreateNode(comp);
          $$->s1 = $3;
          $$->s2 = $4;
-	 if(offset > maxoffset){
-	   maxoffset = offset;
-	 }
-	 level -=1;
-	 offset -= Delete(level);
+	 level=level-1;
+	 offset-=Delete(level);
+	 Display();
         } /*states how functions should be implemented */
         ;
 localdec:/*empty*/ {$$ = NULL;}
@@ -404,7 +402,7 @@ simpleexp:addexp {$$ =$1;}
 
        if($1->semtype != $3->semtype){
 
-
+             
 	 yyerror("type mismatch \n");
 	 exit(1);
 	 
@@ -476,9 +474,7 @@ factor:'('expression')' {$$ =$2;}
                $$->value = $1;
 	       $$->semtype = inttype;
              }  /* this detetmines how the expression statment works  */
-      |var   {$$ = $1;
-
-             }
+      |var   {$$ = $1; }
       |call  {$$ =$1;}
       |TRUE  {$$ =ASTCreateNode(TF);
               $$->value = 1;
