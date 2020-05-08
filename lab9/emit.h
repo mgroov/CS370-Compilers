@@ -1,4 +1,4 @@
-//Matthew Groover march 4 -2020
+//Matthew Groover may 4 -2020 - may 8, 2020
 
 
 #include <stdio.h>
@@ -15,8 +15,14 @@
 
 
 
-char * genlabel();
+char * genlabel();   //function prototypes 
 
 void EMITSTRINGS(ASTnode *P,FILE *fp);
 void EMITGLOBALS(ASTnode *P,FILE *fp);
+void EMITAST(ASTnode *p, FILE *fp);
+void emit_expr(ASTnode *p, FILE *fp);
+void emit_identifier(ASTnode *p, FILE *fp);
+void emit_if(ASTnode *p, FILE *fp);
+void emit_assign(ASTnode *p, FILE *fp);
+void emit_call(ASTnode *p, FILE *fp);
 #endif 

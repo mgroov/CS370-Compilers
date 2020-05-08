@@ -1,9 +1,15 @@
- %{
+%{
 
 /*  Matthew Groover 
     3-2-20 - 3-27-20
  *  this y file defines the algol-c language for 
     our ast and later use for the whole compiler [21~
+
+
+
+     may-4 - may-8 2020
+    added create temp and fprint f structures 
+    to generate mips code 
 */
 
 
@@ -118,6 +124,7 @@ varlist:ID {
     $$->symbol=Insert($1,-1,0,level,1,offset,NULL);                                                                                                                                                                                              /*Insert(char *name, enum OPERATOR Type, int isafunc, int  level, int mysize, int offse,
 																														   Tnode * fparms ); */
     offset = offset +1;
+    Display();
   }
   }
 |ID '['NUM']' { // fprintf(stderr,"there is a num it is %d \n",$3);
@@ -200,25 +207,32 @@ fundec:typespec ID '('{
   }
   
   goffset = offset;
-  offset =0;
+  offset =2;
+  maxoffset =offset;
 
   }params{
-
-    Insert($2, $1, 1, level, 1,goffset, $5 );
+    
     goffset +=1; //inserts function
     Display();
 
    }')' compstat{
   
           $$ = ASTCreateNode(fundec);
+          $$->symbol=Insert($2, $1, 1, level, 1,goffset, $5 );
           $$->Name = $2;
           $$->s1 = $5;                  
           $$->s2 = $8;
           $$->datatype = $1;
-	  $$->symbol = Search($2,0,0);
+	  offset = goffset;
 
-	
+	  //  if(offset>maxoffset){
+	  // maxoffset = offset;
+	  //}
+          
 	  
+	  $$->symbol->mysize = maxoffset;
+	  $$->size = maxoffset;
+
           
       }           /*handles function declaration with or without parameters */
       ;
@@ -276,8 +290,14 @@ param:typespec ID   {
 
   } /*param list , param handle a large ammount and what type of params work in the function declarations */
 ;
-compstat:MYBEGIN {level +=1;} localdec statlist END{ level=level-1;
-    offset-=Delete(level);}{
+compstat:MYBEGIN {level +=1;} localdec statlist END{ 
+
+  if(offset>maxoffset){
+    maxoffset = offset;
+  }
+  offset-=Delete(level);
+   level=level-1;
+ }{
   $$ = ASTCreateNode(comp);
          $$->s1 = $3;
          $$->s2 = $4;
@@ -366,6 +386,9 @@ assignstat: var '=' simpleexp ';'{
           $$ = ASTCreateNode(assign); /*assignment statement handle */
           $$->s1 = $1;
 	  $$->s2 = $3;
+	  $$->Name=CreateTemp();
+	  $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);
+	  offset++;
           }
           ;
 
@@ -426,6 +449,9 @@ simpleexp:addexp {$$ =$1;}
        $$->s2 = $3;             /* this handles most of our addition and subtraction cases*/
        $$->operator = $2;
        $$->semtype = $1->semtype;
+       $$->Name=CreateTemp();
+       $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);
+       offset++;
      }
      ;
 
@@ -453,6 +479,9 @@ addexp:term        {$$ = $1;}
   $$->s2 = $3;
   $$->operator = $2;
   $$->semtype = $1->semtype;
+  $$->Name=CreateTemp();
+  $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);
+  offset++;
  }
 ;
 
@@ -473,6 +502,8 @@ term:factor {$$ = $1;}
       $$->s1 = $1;
       $$->s2 = $3;
       $$->semtype = $1->semtype;
+      $$->Name=CreateTemp();
+      $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);                                                                                                                                                                                  offset++; 
      }
     ;
 
@@ -489,11 +520,11 @@ factor:'('expression')' {$$ =$2;}
              }  /* this detetmines how the expression statment works  */
       |var   {$$ = $1; }
       |call  {$$ =$1;}
-      |TRUE  {$$ =ASTCreateNode(TF);
+      |TRUE  {$$ =ASTCreateNode(mynum);
               $$->value = 1;
 	      $$->semtype = booltype;
        }
-      |FALSE {$$ =ASTCreateNode(TF);
+      |FALSE {$$ =ASTCreateNode(mynum);
               $$->value =0;
 	      $$->semtype = booltype;
        }
@@ -501,9 +532,12 @@ factor:'('expression')' {$$ =$2;}
       yyerror("not needs a boolean type\n");
       exit(1);
     }
-  $$ = ASTCreateNode(nOt);
+  $$ = ASTCreateNode(expr);
+  $$->operator = nOt;
    $$->s1 = $2;
    $$->semtype = $2->semtype;
+   $$->Name=CreateTemp();
+   $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);                                                                                                                                                                                  offset++; 
       }
       ;
 
@@ -538,12 +572,16 @@ arglist:expression {$$=ASTCreateNode(ARGLIST);
     $$->s1 = $1;
     $$->semtype = $1->semtype;
     $$->next = NULL;
+    $$->Name=CreateTemp();
+    $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);                                                                                                                                                                                  offset++; 
        }
        |expression ',' arglist {
 	 $$=ASTCreateNode(ARGLIST);
          $$->next = $3;
 	 $$->semtype = $1->semtype; 
 	 $$->s1 = $1;
+	 $$->Name=CreateTemp();
+	 $$->symbol=Insert($$->Name,inttype,0,level,1,offset,NULL);                                                                                                                                                                                  offset++; 
        }
        ;
 
@@ -588,11 +626,11 @@ int main(int argc, char * argv[])
    if(fp == NULL){
      printf("cannot open file %s \n",s);
      exit(1);
-   }
+   }//if file cannot be opened
 
    
   yyparse();
-  //   ASTprint(worldpointer,0);//prints tree
+  // ASTprint(worldpointer,0);//prints tree
 
   fprintf(fp,".data \n\n");
   
@@ -602,7 +640,12 @@ int main(int argc, char * argv[])
 
   fprintf(fp,"\n.align 2 \n\n");
   
-  EMITGLOBALS(worldpointer,fp);
+  EMITGLOBALS(worldpointer,fp);      //print outs needed for every mips code 
 
   fprintf(fp,"\n.text\n\n");
+
+
+  fprintf(fp,"\n.globl main\n\n");
+  
+  EMITAST(worldpointer,fp);
 }//of main

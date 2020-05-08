@@ -108,7 +108,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 46 "lab9.y" /* yacc.c:1909  */
+#line 52 "lab9.y" /* yacc.c:1909  */
 
 int number;
 char *string;

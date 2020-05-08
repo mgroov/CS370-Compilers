@@ -1,7 +1,7 @@
-//
-//
-//
-//
+//Matthew Groover
+//this class defines the enums 
+//and types for both the ast tree and 
+//symbol table 
 //
 //
 
@@ -26,6 +26,8 @@ enum NODETYPE
    expr,
    VAR,
    TF,
+   mytrue,
+   myfalse,
    callme,
    nOt,
    iffbody,
@@ -69,7 +71,7 @@ typedef struct ASTNODEtype{
 
 void ASTprint(ASTnode *p, int level);
 
-ASTnode *ASTCreateNode(enum NODETYPE type);
+ASTnode *ASTCreateNode(enum NODETYPE type); //function prototypes 
 
 void printtabs(int level);
 

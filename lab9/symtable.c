@@ -12,6 +12,11 @@
     We return a pointer to the symbol table when a variable matches our creteria.
 
     We add a routine to remove variables at our level and above.
+
+    Matthew Groover 
+    added create temp to create 
+    a temporary space in order to hold data  
+    while we do register managment 
 */
 
     
@@ -22,7 +27,7 @@
 #include <stdlib.h>
 
 struct SymbTab * first  = NULL;
-
+int GTEMP =0;
 
 
 
@@ -160,5 +165,13 @@ int Delete(int level)
 
       }
     return(SIZE);
-}
+}//of delete
 
+char * CreateTemp()
+{ char hold[100];
+  char *s;
+  sprintf(hold,"_t%d",GTEMP++); // creates a temporary holding cell strdup allocates memory for said cell 
+  s=strdup(hold);
+  return (s);
+
+}//create temp

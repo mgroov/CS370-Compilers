@@ -1,3 +1,9 @@
+//Matthew Groover
+//this files creates
+//amd maages the symbtable
+//based semantic actions
+//aswekk as prints the ast print
+
 #include "ast.h"
 #include <stdio.h>
 #include <malloc.h>
