@@ -283,9 +283,8 @@ void  emit_identifier(ASTnode *p,FILE *fp){
     }
     else{
       emit_expr(p->s1,fp);//storing internal offset in a0
-      emit(fp,"","li $t1, 4","#loading size into a temp to multiply");
-      emit(fp,"","mult $a0,$t1","#multiplying internal offset by 4");
-      emit(fp, "", "mflo $a0", "#grab the product" );
+      sprintf(s,"sll $t0, $a0 , %d", LOGWSIZE);
+      emit(fp,"",s,"#array internal offset management");
       sprintf(s,"add $a0, $sp , %d",p->symbol->offset *WSIZE);
       emit(fp,"",s,"#identifier is a local array");                                                                                                                                                                                               emit(fp,"","",""); //spacing emit  
     } //of local arrays  
@@ -475,10 +474,15 @@ void EMITAST(ASTnode *p, FILE *fp){
   case exprstmt:{
     emit_expr(p->s1,fp);
     break;
-  }//of callme 
+  }//of callme
+  case RET:{
+    emit_function_return(p->s1,fp);
+    break;
+  }//of ret 
   default:printf("emit ast does not have this type \n");
     break;
   }//of switch
+  
 
   EMITAST(p->next,fp);
 
